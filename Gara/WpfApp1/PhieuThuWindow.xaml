@@ -5,8 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="PhieuThuWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="PhieuThuWindow" Height="700" Width="702">
+    <Grid Margin="0,0,0,4">
+        <Label Content="Mã phiếu:" Margin="35,67,565,557" FontSize="20" FontFamily="Bahnschrift"/>
+        <Label Content="Ghi chú:" Margin="35,504,530,130" FontSize="15" FontFamily="Bahnschrift"/>
+        <Label Content="Họ và tên:" HorizontalAlignment="Left" Height="39" Margin="35,149,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
+        <TextBox x:Name="txtTenKH" HorizontalAlignment="Left" Height="31" Margin="172,149,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" TextChanged="TextBox_TextChanged" FontFamily="Bahnschrift"/>
+        <Label Content="Số điện thoại:" HorizontalAlignment="Left" Height="34" Margin="35,194,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
+        <TextBox x:Name="txtSDT" HorizontalAlignment="Left" Height="33" Margin="172,195,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
+        <Label Content="Thông tin phương tiện" HorizontalAlignment="Left" Height="38" Margin="35,292,0,0" VerticalAlignment="Top" Width="263" FontSize="25" FontFamily="Bahnschrift"/>
+        <Label Content="Biển số xe:" HorizontalAlignment="Left" Height="34" Margin="35,335,0,0" VerticalAlignment="Top" Width="109" FontSize="20" RenderTransformOrigin="0.486,-2.322" FontFamily="Bahnschrift"/>
+        <TextBox x:Name="txtBienSo" HorizontalAlignment="Left" Height="30" Margin="172,335,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
+        <Label Content="Hiệu xe:" HorizontalAlignment="Left" Height="32" Margin="35,374,0,0" VerticalAlignment="Top" Width="83" FontSize="20" RenderTransformOrigin="0.47,-0.53" FontFamily="Bahnschrift"/>
+        <TextBox x:Name="txtHieuXe" HorizontalAlignment="Left" Height="32" Margin="172,374,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
+        <Label Content="Ngày thu tiền:" HorizontalAlignment="Left" Height="32" Margin="35,419,0,0" VerticalAlignment="Top" Width="155" FontSize="20" FontFamily="Bahnschrift"/>
+        <Label Content="Email" HorizontalAlignment="Left" Height="34" Margin="35,242,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
+        <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Height="33" Margin="172,242,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
+        <DatePicker x:Name="dpNgayThu" HorizontalAlignment="Left" Height="32" Margin="172,419,0,0" VerticalAlignment="Top" Width="150" FontSize="20"/>
+        <TextBox x:Name="txtSoTien" HorizontalAlignment="Left" Height="28" Margin="172,471,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" Background="White" FontWeight="Bold" FontSize="20" FontFamily="Bahnschrift" />
+        <Label Content="Số tiền thu:" HorizontalAlignment="Left" Height="32" Margin="35,467,0,0" VerticalAlignment="Top" Width="112" FontSize="20" RenderTransformOrigin="0.286,0.408" FontFamily="Bahnschrift"/>
+        <Label Content="Phiếu thu tiền" HorizontalAlignment="Left" Height="52" Margin="250,10,0,0" VerticalAlignment="Top" Width="300" FontSize="40" FontWeight="Bold" FontFamily="Franklin Gothic Heavy"/>
+        <Label Content="Thông tin khách hàng" HorizontalAlignment="Left" Height="38" Margin="35,102,0,0" VerticalAlignment="Top" Width="263" FontSize="25" FontFamily="Bahnschrift"/>
+        <Button x:Name="btnSave" Content="Lưu" HorizontalAlignment="Left" Height="34" Margin="91,607,0,0" VerticalAlignment="Top" Width="114" Click="btnSave_Click"/>
+        <Button Content="In" HorizontalAlignment="Left" Height="34" Margin="484,607,0,0" VerticalAlignment="Top" Width="115"/>
+        <RichTextBox x:Name="txtGhiChu" HorizontalAlignment="Left" Height="62" Margin="35,533,0,0" VerticalAlignment="Top" Width="615" FontSize="14" FontFamily="Bahnschrift">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="RichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <TextBox x:Name="txtMaPhieu" HorizontalAlignment="Left" Height="31" Margin="137,67,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="110" FontSize="20" TextChanged="txtMaPhieu_TextChanged" FontFamily="Bahnschrift"/>
+
     </Grid>
 </Window>

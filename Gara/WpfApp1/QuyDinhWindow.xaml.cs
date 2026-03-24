@@ -23,5 +23,11 @@ namespace WpfApp1
         {
             InitializeComponent();
         }
+
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Lưu thành công!");
+        }
     }
 }

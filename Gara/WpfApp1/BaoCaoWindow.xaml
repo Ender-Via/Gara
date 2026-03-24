@@ -3,10 +3,148 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp1"
-        mc:Ignorable="d"
-        Title="BaoCaoWindow" Height="450" Width="800">
-    <Grid>
-        
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"        mc:Ignorable="d"
+        Title="BaoCaoWindow" Height="471" Width="792">
+    <Grid >
+
+        <!-- Chia layout -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+
+
+        <!-- 1. CHỌN THÁNG -->
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+            <!-- Tháng -->
+            <ComboBox x:Name="cbThang" Width="100" Margin="10,0">
+                <ComboBoxItem Content="1"/>
+                <ComboBoxItem Content="2"/>
+                <ComboBoxItem Content="3"/>
+                <ComboBoxItem Content="4"/>
+                <ComboBoxItem Content="5"/>
+                <ComboBoxItem Content="6"/>
+                <ComboBoxItem Content="7"/>
+                <ComboBoxItem Content="8"/>
+                <ComboBoxItem Content="9"/>
+                <ComboBoxItem Content="10"/>
+                <ComboBoxItem Content="11"/>
+                <ComboBoxItem Content="12"/>
+            </ComboBox>
+
+            <!-- Năm -->
+            <ComboBox x:Name="cbNam" Width="100" Margin="10,0">
+                <ComboBoxItem Content="2024"/>
+                <ComboBoxItem Content="2025"/>
+                <ComboBoxItem Content="2026"/>
+            </ComboBox>
+
+            <Button x:Name="BtnXemBaoCao" Content="Xem báo cáo"
+                Width="120"
+                Margin="10,0"
+                FontWeight="Bold" Click="BtnXemBaoCao_Click"/>
+        </StackPanel>
+
+
+        <!-- 2. TỔNG QUAN (CARDS) -->
+
+        <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,10">
+
+            <!-- Doanh thu -->
+            <Border Background="#FFE8F5E9" Margin="5" Padding="10" CornerRadius="10">
+                <StackPanel>
+                    <TextBlock Text="💰 Doanh thu" FontSize="16"/>
+                    <TextBlock Text="{Binding DoanhThu, StringFormat={}{0:N0} VND}"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="Green"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Số lượt sửa -->
+            <Border Background="#FFE3F2FD" Margin="5" Padding="10" CornerRadius="10">
+                <StackPanel>
+                    <TextBlock Text="🔧 Lượt sửa" FontSize="16"/>
+                    <TextBlock Text="{Binding LuotSua}"
+                           FontSize="20"
+                           FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Khách hàng -->
+            <Border Background="#FFFFF3E0" Margin="5" Padding="10" CornerRadius="10">
+                <StackPanel>
+                    <TextBlock Text="👤 Khách hàng" FontSize="16"/>
+                    <TextBlock Text="{Binding KhachHang}"
+                           FontSize="20"
+                           FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+
+        </UniformGrid>
+
+        <!-- 3. BIỂU ĐỒ (placeholder) -->
+
+        <Border Grid.Row="2"
+            Background="#FFF5F5F5"
+            Margin="0,0,0,10"
+            CornerRadius="10"
+            Padding="10">
+
+   
+            <lvc:CartesianChart Margin="0,-20,-10,-40">
+                <lvc:CartesianChart.Series>
+            
+                    <!-- Doanh thu -->
+                    <lvc:ColumnSeries Title="Doanh thu"
+                          Values="{Binding DoanhThuNgay}" />
+
+                    <!-- (Optional) Số lượt sửa -->
+                    <lvc:ColumnSeries Title="Lượt sửa"
+                          Values="{Binding SoLuotSua}" />
+                </lvc:CartesianChart.Series>
+
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Labels="{Binding Days}" Title="Ngày"/>
+
+                </lvc:CartesianChart.AxisX>
+
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="VND"/>
+                </lvc:CartesianChart.AxisY>
+
+            </lvc:CartesianChart>
+           
+        </Border>
+
+
+        <!-- 4. CHI TIẾT -->
+        <DataGrid Grid.Row="3"
+            AutoGenerateColumns="False"
+              ItemsSource="{Binding BaoCaoChiTiet}" Margin="0,18,0,0">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Ngày"
+                                Binding="{Binding Date}"
+                                Width="*"/>
+
+                <DataGridTextColumn Header="Khách hàng"
+                                Binding="{Binding TenKH}"
+                                Width="2*"/>
+
+                <DataGridTextColumn Header="Dịch vụ"
+                                Binding="{Binding DVu}"
+                                Width="2*"/>
+
+                <DataGridTextColumn Header="Tổng tiền"
+                                Binding="{Binding TongTien, StringFormat={}{0:N0}}"
+                                Width="*"/>
+            </DataGrid.Columns>
+
+        </DataGrid>
+
     </Grid>
 </Window>
