@@ -5,8 +5,110 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="PhieuSuaChuaWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="Phiếu Sửa Chữa" Height="600" Width="900" WindowStartupLocation="CenterScreen">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" Text="PHIẾU SỬA CHỮA" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <!-- Header Info -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="Biển số xe:" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="14" Margin="0,0,10,0"/>
+            <TextBox Grid.Column="1"
+                     Height="32"
+                     Margin="0,0,30,0"
+                     Padding="5,0"
+                     VerticalContentAlignment="Center"
+                     FontSize="14"
+                     Text="{Binding BienSoXe, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Grid.Column="2" Text="Ngày sửa chữa:" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="14" Margin="0,0,10,0"/>
+            <DatePicker Grid.Column="3"
+                        Height="32"
+                        Padding="5,0"
+                        VerticalContentAlignment="Center"
+                        FontSize="14"
+                        SelectedDate="{Binding NgaySuaChua, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+
+        <!-- Details Table -->
+        <DataGrid Grid.Row="2" AutoGenerateColumns="False" CanUserAddRows="True" Margin="0,0,0,15" RowHeight="30" ColumnHeaderHeight="35" FontSize="14"
+                  Background="White"
+                  HorizontalGridLinesBrush="#DDDDDD"
+                  VerticalGridLinesBrush="#DDDDDD"
+                  ItemsSource="{Binding DanhSachChiTiet}"
+                  SelectedItem="{Binding DongDangChon, Mode=TwoWay}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="STT" Width="60" IsReadOnly="True" Binding="{Binding STT}"/>
+                <DataGridTextColumn Header="Nội dung" Width="*" Binding="{Binding NoiDung}"/>
+                <DataGridTemplateColumn Header="Vật tư phụ tùng" Width="170">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding VatTuPhuTung}" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.DanhSachVatTu, RelativeSource={RelativeSource AncestorType=Window}}"
+                                      SelectedItem="{Binding VatTuDuocChon, UpdateSourceTrigger=PropertyChanged}"
+                                      DisplayMemberPath="Ten"
+                                      VerticalContentAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Số lượng" Width="100" Binding="{Binding SoLuong}"/>
+                <DataGridTextColumn Header="Đơn giá" Width="120" IsReadOnly="True" Binding="{Binding DonGia, StringFormat={}{0:N0}}"/>
+                <DataGridTemplateColumn Header="Loại tiền công" Width="160">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding LoaiTienCongDuocChon.Ten}" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.DanhSachTienCong, RelativeSource={RelativeSource AncestorType=Window}}"
+                                      SelectedItem="{Binding LoaiTienCongDuocChon, UpdateSourceTrigger=PropertyChanged}"
+                                      DisplayMemberPath="Ten"
+                                      VerticalContentAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Tiền công" Width="120" IsReadOnly="True" Binding="{Binding TienCong, StringFormat={}{0:N0}}"/>
+                <DataGridTextColumn Header="Thành tiền" Width="150" IsReadOnly="True" Binding="{Binding ThanhTien, StringFormat={}{0:N0}}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Action Buttons -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       VerticalAlignment="Center"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Text="{Binding TongTienHienThi}"/>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Xóa Dòng" Width="100" Height="35" Margin="0,0,10,0" Background="#FFDC3545" Foreground="White" FontWeight="Bold" FontSize="14" Command="{Binding XoaDongCommand}"/>
+                <Button Content="In Phiếu" Width="100" Height="35" Margin="0,0,10,0" Background="#FF17A2B8" Foreground="White" FontWeight="Bold" FontSize="14" Command="{Binding InPhieuCommand}"/>
+                <Button Content="Lưu Phiếu" Width="100" Height="35" Background="#FF28A745" Foreground="White" FontWeight="Bold" FontSize="14" Command="{Binding LuuPhieuCommand}"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

@@ -80,7 +80,7 @@ namespace WpfApp1.ViewModels
         {
             if (!double.TryParse(SoTien, out double soTien))
             {
-                MessageBox.Show("S? ti?n không h?p l?!");
+                MessageBox.Show("Số tiền không hợp lệ!");
                 return;
             }
 
@@ -100,7 +100,7 @@ namespace WpfApp1.ViewModels
             AllPhieuThu.Add(pt);
             SaveToFile(AllPhieuThu);
 
-            MessageBox.Show("Thu ti?n thành công!");
+            MessageBox.Show("Thu tiền thành công!");
 
             GenerateMaPhieu();
 
