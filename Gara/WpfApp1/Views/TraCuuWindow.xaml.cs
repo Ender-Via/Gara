@@ -11,17 +11,19 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfApp1.ViewModels;
 
-namespace WpfApp1
+namespace WpfApp1.Views
 {
     /// <summary>
-    /// Interaction logic for PhieuSuaChuaWindow.xaml
+    /// Interaction logic for TraCuuWindow.xaml
     /// </summary>
-    public partial class PhieuSuaChuaWindow : Window
+    public partial class TraCuuWindow : Window
     {
-        public PhieuSuaChuaWindow()
+        public TraCuuWindow()
         {
             InitializeComponent();
+            DataContext = new TraCuuViewModel();
         }
     }
 }

@@ -11,8 +11,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfApp1.ViewModels;
 
-namespace WpfApp1
+namespace WpfApp1.Views
 {
     /// <summary>
     /// Interaction logic for QuyDinhWindow.xaml
@@ -22,12 +23,7 @@ namespace WpfApp1
         public QuyDinhWindow()
         {
             InitializeComponent();
-        }
-
-
-        private void btnSave_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Lưu thành công!");
+            DataContext = new QuyDinhViewModel();
         }
     }
 }
