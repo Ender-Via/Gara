@@ -64,7 +64,7 @@
                         <DataTemplate>
                             <ComboBox ItemsSource="{Binding DataContext.DanhSachVatTu, RelativeSource={RelativeSource AncestorType=Window}}"
                                       SelectedItem="{Binding VatTuDuocChon, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Ten"
+                                      DisplayMemberPath="PartName"
                                       VerticalContentAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
@@ -74,14 +74,14 @@
                 <DataGridTemplateColumn Header="Loại tiền công" Width="160">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding LoaiTienCongDuocChon.Ten}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding LoaiTienCongDuocChon.LaborName}" VerticalAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
                             <ComboBox ItemsSource="{Binding DataContext.DanhSachTienCong, RelativeSource={RelativeSource AncestorType=Window}}"
                                       SelectedItem="{Binding LoaiTienCongDuocChon, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Ten"
+                                      DisplayMemberPath="LaborName"
                                       VerticalContentAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
