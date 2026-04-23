@@ -22,6 +22,36 @@ namespace WpfApp1
         public TiepNhanWindow()
         {
             InitializeComponent();
+            dpNgayTiepNhan.SelectedDate = System.DateTime.Now;
+            LoadHieuXe();
+        }
+
+        private void LoadHieuXe()
+        {
+            // Dummy data based on the image description
+            // Replace this with actual database loading logic later
+            cmbHieuXe.Items.Add("Toyota");
+            cmbHieuXe.Items.Add("Honda");
+            cmbHieuXe.Items.Add("Suzuki");
+            cmbHieuXe.Items.Add("Ford");
+            cmbHieuXe.Items.Add("Kia");
+            cmbHieuXe.Items.Add("Hyundai");
+            cmbHieuXe.Items.Add("Mazda");
+            cmbHieuXe.Items.Add("BMW");
+            cmbHieuXe.Items.Add("Mercedes");
+            cmbHieuXe.Items.Add("Nissan");
+            if (cmbHieuXe.Items.Count > 0)
+                cmbHieuXe.SelectedIndex = 0;
+        }
+
+        private void btnLuu_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Đã lưu thông tin tiếp nhận!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnDong_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }
