@@ -10,7 +10,7 @@
         <Label Content="Mã phiếu:" Margin="35,67,565,557" FontSize="20" FontFamily="Bahnschrift"/>
         <Label Content="Ghi chú:" Margin="35,504,530,130" FontSize="15" FontFamily="Bahnschrift"/>
         <Label Content="Họ và tên:" HorizontalAlignment="Left" Height="39" Margin="35,149,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
-        <TextBox x:Name="txtTenKH" HorizontalAlignment="Left" Height="31" Margin="172,149,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" TextChanged="TextBox_TextChanged" FontFamily="Bahnschrift"/>
+        <TextBox x:Name="txtTenKH" HorizontalAlignment="Left" Height="31" Margin="172,149,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
         <Label Content="Số điện thoại:" HorizontalAlignment="Left" Height="34" Margin="35,194,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
         <TextBox x:Name="txtSDT" HorizontalAlignment="Left" Height="33" Margin="172,195,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
         <Label Content="Thông tin phương tiện" HorizontalAlignment="Left" Height="38" Margin="35,292,0,0" VerticalAlignment="Top" Width="263" FontSize="25" FontFamily="Bahnschrift"/>

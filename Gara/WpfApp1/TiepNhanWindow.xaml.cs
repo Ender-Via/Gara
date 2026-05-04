@@ -1,52 +1,80 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using WpfApp1.Models; 
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for TiepNhanWindow.xaml
-    /// </summary>
     public partial class TiepNhanWindow : Window
     {
         public TiepNhanWindow()
         {
             InitializeComponent();
-            dpNgayTiepNhan.SelectedDate = System.DateTime.Now;
-            LoadHieuXe();
+
+            
+            this.Loaded += TiepNhanWindow_Loaded;
         }
 
-        private void LoadHieuXe()
+        private async void TiepNhanWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Dummy data based on the image description
-            // Replace this with actual database loading logic later
-            cmbHieuXe.Items.Add("Toyota");
-            cmbHieuXe.Items.Add("Honda");
-            cmbHieuXe.Items.Add("Suzuki");
-            cmbHieuXe.Items.Add("Ford");
-            cmbHieuXe.Items.Add("Kia");
-            cmbHieuXe.Items.Add("Hyundai");
-            cmbHieuXe.Items.Add("Mazda");
-            cmbHieuXe.Items.Add("BMW");
-            cmbHieuXe.Items.Add("Mercedes");
-            cmbHieuXe.Items.Add("Nissan");
-            if (cmbHieuXe.Items.Count > 0)
-                cmbHieuXe.SelectedIndex = 0;
+            try
+            {
+      
+                var response = await App.DB._client.From<CarBrand>().Get();
+                var danhSachHieuXe = response.Models;
+
+
+                cmbHieuXe.ItemsSource = danhSachHieuXe;
+                cmbHieuXe.DisplayMemberPath = "BrandName"; 
+                cmbHieuXe.SelectedValuePath = "Id";        
+
+   
+                if (danhSachHieuXe.Any())
+                {
+                    cmbHieuXe.SelectedIndex = 0;
+                }
+
+
+                dpNgayTiepNhan.SelectedDate = DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách hiệu xe: " + ex.Message, "Thông báo", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void btnLuu_Click(object sender, RoutedEventArgs e)
+        private async void btnLuu_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Đã lưu thông tin tiếp nhận!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            string tenKhach = txtTenChuXe.Text.Trim();
+            string sdt = txtDienThoai.Text.Trim();
+            string diaChi = txtDiaChi.Text.Trim();
+            string bienSo = txtBienSo.Text.Trim();
+
+            string tenHieuXe = cmbHieuXe.Text;
+
+            DateTime ngayTiepNhan = dpNgayTiepNhan.SelectedDate ?? DateTime.Now;
+
+
+            if (string.IsNullOrEmpty(tenKhach) || string.IsNullOrEmpty(bienSo))
+            {
+                MessageBox.Show("Thiếu tên chủ xe hoặc biển số xe", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            bool isSuccess = await App.DB.LuuTiepNhanXeAsync(tenKhach, sdt, diaChi, bienSo, tenHieuXe, ngayTiepNhan);
+
+            if (isSuccess)
+            {
+                MessageBox.Show("Đã tiếp nhận xe!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                txtTenChuXe.Clear();
+                txtDienThoai.Clear();
+                txtDiaChi.Clear();
+                txtBienSo.Clear();
+
+                txtTenChuXe.Focus();
+            }
         }
 
         private void btnDong_Click(object sender, RoutedEventArgs e)
