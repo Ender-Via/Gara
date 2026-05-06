@@ -6,7 +6,61 @@
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="TraCuuWindow" Height="450" Width="800">
-    <Grid>
-        
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Hàng 0: Tiêu đề -->
+            <RowDefinition Height="Auto"/>
+            <!-- Hàng 1: Khu vực tìm kiếm -->
+            <RowDefinition Height="*"/>
+            <!-- Hàng 2: Bảng dữ liệu -->
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề biểu mẫu -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1" Text="Danh Sách Các Xe" FontWeight="Bold" FontSize="16" Padding="5" TextAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- Khu vực tìm kiếm theo biển số -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Center">
+            <TextBlock Text="Biển Số:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
+            <TextBox x:Name="txtBienSoSearch" Width="200" Margin="0,0,10,0" VerticalContentAlignment="Center" Padding="2"/>
+            <Button x:Name="btnTimKiem" Content="Tìm kiếm" Width="100" Padding="5"/>
+        </StackPanel>
+
+        <!-- Bảng dữ liệu -->
+        <DataGrid Grid.Row="2" x:Name="dgDanhSachXe" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="All">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="Padding" Value="5"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="STT" Binding="{Binding STT}" Width="60">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Biển Số" Binding="{Binding BienSo}" Width="*"/>
+                <DataGridTextColumn Header="Hiệu Xe" Binding="{Binding HieuXe}" Width="*"/>
+                <DataGridTextColumn Header="Chủ Xe" Binding="{Binding ChuXe}" Width="*"/>
+                <DataGridTextColumn Header="Tiền Nợ" Binding="{Binding TienNo}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
