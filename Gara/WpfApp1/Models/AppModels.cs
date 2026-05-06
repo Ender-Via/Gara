@@ -262,4 +262,14 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         [Column("description")]
         public string Description { get; set; }
     }
+
+    // DTO dùng để hiển thị tra cứu xe (không map DB)
+    public class TraCuuXeRow
+    {
+        public int STT { get; set; }
+        public string BienSo { get; set; }
+        public string HieuXe { get; set; }
+        public string ChuXe { get; set; }
+        public decimal TienNo { get; set; }
+    }
 }
