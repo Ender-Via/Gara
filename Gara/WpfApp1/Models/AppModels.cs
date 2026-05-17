@@ -253,14 +253,17 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         [PrimaryKey("id", false)]
         public string Id { get; set; }
 
-        [Column("regulation_key")]
-        public string RegulationKey { get; set; }
+        [Column("max_car_brands")]
+        public int? MaxCarBrands { get; set; }
 
-        [Column("regulation_value")]
-        public string RegulationValue { get; set; }
+        [Column("max_daily_vehicles")]
+        public int? MaxDailyVehicles { get; set; }
 
-        [Column("description")]
-        public string Description { get; set; }
+        [Column("max_parts")]
+        public int? MaxParts { get; set; }
+
+        [Column("max_labors")]
+        public int? MaxLabors { get; set; }
     }
 
     // DTO dùng để hiển thị tra cứu xe (không map DB)

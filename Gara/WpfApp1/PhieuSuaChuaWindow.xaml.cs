@@ -23,6 +23,7 @@ namespace WpfApp1
     {
         private ObservableCollection<RepairOrderDetail> _danhSachChiTiet = new ObservableCollection<RepairOrderDetail>();
         private ObservableCollection<Part> _danhSachPhuTung = new ObservableCollection<Part>();
+        private ObservableCollection<Labor> _danhSachTienCong = new ObservableCollection<Labor>();
         public PhieuSuaChuaWindow()
         {
             InitializeComponent();
@@ -54,6 +55,14 @@ namespace WpfApp1
                     _danhSachPhuTung = new ObservableCollection<Part>(_parts.Models);
                     colVatTu.ItemsSource = _danhSachPhuTung;
                 }
+
+                // Tải tiền công
+                var _labors = await App.DB._client.From<Labor>().Get();
+                if (_labors != null && _labors.Models != null)
+                {
+                    _danhSachTienCong = new ObservableCollection<Labor>(_labors.Models);
+                    colTienCong.ItemsSource = _danhSachTienCong;
+                }
             }
             catch (Exception ex)
             {
@@ -78,6 +87,17 @@ namespace WpfApp1
                     row.UnitPrice = selectedPart.UnitPrice;
                 }
 
+            }
+            else if (e.Column.Header.ToString() == "Loại tiền công")
+            {
+                var combo = e.EditingElement as ComboBox;
+                var laborId = combo?.SelectedValue?.ToString();
+                var selectedLabor = _danhSachTienCong.FirstOrDefault(l => l.Id == laborId);
+
+                if (selectedLabor != null)
+                {
+                    row.LaborFee = selectedLabor.LaborFee;
+                }
             }
             Dispatcher.BeginInvoke(new Action(() =>
             {

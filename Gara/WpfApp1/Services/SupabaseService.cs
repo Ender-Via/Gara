@@ -31,6 +31,22 @@ namespace WpfApp1.Services
         {
             try
             {
+                var regulations = await GetRegulationsAsync();
+                var maxDailyVehicles = regulations?.MaxDailyVehicles ?? 30;
+                var startDate = ngayTiepNhan.Date.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                var endDate = ngayTiepNhan.Date.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssZ");
+
+                var receiptCountResponse = await _client.From<ServiceReceipt>()
+                    .Filter("reception_date", Operator.GreaterThanOrEqual, startDate)
+                    .Filter("reception_date", Operator.LessThan, endDate)
+                    .Get();
+
+                if ((receiptCountResponse.Models?.Count ?? 0) >= maxDailyVehicles)
+                {
+                    MessageBox.Show($"Lỗi: Mỗi ngày chỉ tiếp nhận tối đa {maxDailyVehicles} xe.");
+                    return false;
+                }
+
                 var brandResponse = await _client.From<CarBrand>()
                                                  .Filter("brand_name", Postgrest.Constants.Operator.Equals, tenHieuXe)
                                                  .Get();
@@ -42,7 +58,6 @@ namespace WpfApp1.Services
                     return false;
                 }
 
-                
                 var newCustomer = new Customer
                 {
                     FullName = tenKhach,
@@ -76,6 +91,40 @@ namespace WpfApp1.Services
                 MessageBox.Show("Lỗi khi lưu DB: " + ex.Message);
                 return false;
             }
+        }
+
+        public async Task<SystemRegulation> GetRegulationsAsync()
+        {
+            var response = await _client.From<SystemRegulation>()
+                .Get();
+
+            return response.Models.FirstOrDefault();
+        }
+
+        public async Task<bool> SaveRegulationsAsync(int maxCarBrands, int maxDailyVehicles, int maxParts, int maxLabors)
+        {
+            var existing = await GetRegulationsAsync();
+            if (existing == null)
+            {
+                var newRegulation = new SystemRegulation
+                {
+                    MaxCarBrands = maxCarBrands,
+                    MaxDailyVehicles = maxDailyVehicles,
+                    MaxParts = maxParts,
+                    MaxLabors = maxLabors
+                };
+
+                await _client.From<SystemRegulation>().Insert(newRegulation);
+                return true;
+            }
+
+            existing.MaxCarBrands = maxCarBrands;
+            existing.MaxDailyVehicles = maxDailyVehicles;
+            existing.MaxParts = maxParts;
+            existing.MaxLabors = maxLabors;
+
+            await _client.From<SystemRegulation>().Update(existing);
+            return true;
         }
 
         public async Task<bool> LuuPhieuSuaChuaAsync(DateTime ngaySuaChua, IEnumerable<RepairOrderDetail> danhSachChiTiet)

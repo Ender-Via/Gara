@@ -57,7 +57,11 @@
 
                     <DataGridTextColumn Header="Đơn giá" Binding="{Binding UnitPrice}" IsReadOnly="True" Width="*"/>
 
-                    <DataGridTextColumn Header="Tiền công" Binding="{Binding LaborFee}" Width="*"/>
+                    <DataGridComboBoxColumn Header="Loại tiền công" x:Name="colTienCong"
+                                        SelectedValueBinding="{Binding LaborId}"
+                                        DisplayMemberPath="LaborName" SelectedValuePath="Id" Width="2*"/>
+
+                    <DataGridTextColumn Header="Tiền công" Binding="{Binding LaborFee}" IsReadOnly="True" Width="*"/>
 
                     <DataGridTextColumn Header="Thành tiền" Binding="{Binding LineTotal}" IsReadOnly="True" Width="*"/>
                 </DataGrid.Columns>
