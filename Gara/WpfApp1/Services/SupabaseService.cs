@@ -116,6 +116,78 @@ namespace WpfApp1.Services
             return true; 
         }
 
+        public async Task<(Vehicle vehicle, decimal currentDebt)> GetVehicleDebtAsync(string licensePlate)
+        {
+            
+            var vehicleResponse = await _client.From<Vehicle>()
+                .Filter("license_plate", Operator.Equals, licensePlate)
+                .Get();
+
+            var vehicle = vehicleResponse.Models.FirstOrDefault();
+            if (vehicle == null) return (null, 0);
+
+           
+            var receiptsResponse = await _client.From<ServiceReceipt>()
+                .Filter("vehicle_id", Operator.Equals, vehicle.Id)
+                .Get();
+            var receiptIds = receiptsResponse.Models.Select(r => r.Id).ToList();
+
+            if (!receiptIds.Any()) return (vehicle, 0);
+
+            
+            var ordersResponse = await _client.From<RepairOrder>()
+                .Filter("service_receipt_id", Operator.In, receiptIds)
+                .Get();
+            var orders = ordersResponse.Models;
+            var orderIds = orders.Select(o => o.Id).ToList();
+
+            decimal totalInvoiced = orders.Sum(o => o.TotalAmount ?? 0);
+
+            
+            decimal totalPaid = 0;
+            if (orderIds.Any())
+            {
+                var paymentsResponse = await _client.From<PaymentReceipt>()
+                    .Filter("repair_order_id", Operator.In, orderIds)
+                    .Get();
+                totalPaid = paymentsResponse.Models.Sum(p => p.AmountReceived ?? 0);
+            }
+
+            return (vehicle, totalInvoiced - totalPaid);
+        }
+
+       
+        public async Task<bool> LuuPhieuThuAsync(string repairOrderId, decimal soTienThu, DateTime ngayThu, string ghiChu)
+        {
+            var newPayment = new PaymentReceipt
+            {
+                RepairOrderId = repairOrderId,
+                AmountReceived = soTienThu,
+                ReceiptDate = ngayThu,
+                Note = ghiChu
+            };
+
+            await _client.From<PaymentReceipt>().Insert(newPayment);
+            return true;
+        }
+
+        public async Task<string> GetNextPaymentCodeAsync()
+        {
+            var today = DateTime.Now.Date;
+            var tomorrow = today.AddDays(1);
+            string startDate = today.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            string endDate = tomorrow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+
+            var response = await _client.From<PaymentReceipt>()
+                .Filter("receipt_date", Operator.GreaterThanOrEqual, startDate)
+                .Filter("receipt_date", Operator.LessThan, endDate)
+                .Get();
+
+            int count = (response.Models?.Count ?? 0) + 1;
+
+            // PT + ddmmyy + STT (3 số)
+            return $"PT{DateTime.Now:ddMMyy}{count:D3}";
+        }
         public async Task<List<TraCuuXeRow>> TraCuuXeAsync(string bienSoFilter)
         {
             try

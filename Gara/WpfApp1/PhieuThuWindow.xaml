@@ -31,7 +31,7 @@
         <RichTextBox x:Name="txtGhiChu" HorizontalAlignment="Left" Height="62" Margin="35,533,0,0" VerticalAlignment="Top" Width="615" FontSize="14" FontFamily="Bahnschrift">
             <FlowDocument>
                 <Paragraph>
-                    <Run Text="RichTextBox"/>
+                    <Run Text="Nhập ghi chú: "/>
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
