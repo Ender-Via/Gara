@@ -35,8 +35,8 @@
         <ScrollViewer Grid.Column="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <Grid MaxWidth="1180"
-                  Margin="24,28,24,36"
+            <Grid MaxWidth="1360"
+                  Margin="24,24,24,32"
                   HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -57,7 +57,7 @@
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="16,11"
-                        Margin="0,0,0,24">
+                        Margin="0,0,0,22">
                     <StackPanel Orientation="Horizontal">
                         <Border Width="18"
                                 Height="18"
@@ -79,16 +79,17 @@
                     </StackPanel>
                 </Border>
 
-                <Grid Grid.Row="2" Margin="0,0,0,34">
+                <Grid Grid.Row="2" Margin="0,0,0,30">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.82*"/>
+                        <ColumnDefinition Width="2.15*" MinWidth="528"/>
                         <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="0.86*"/>
+                        <ColumnDefinition Width="1*" MinWidth="360" MaxWidth="480"/>
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
                             Style="{StaticResource Bm4CardStyle}"
-                            Padding="30,28,30,30">
+                            Padding="32,28,32,30"
+                            VerticalAlignment="Top">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -98,7 +99,7 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="28"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
