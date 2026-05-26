@@ -3,12 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="Phiếu Thu Tiền (BM4)"
         Height="780"
-        Width="1180"
+        Width="1440"
         MinHeight="720"
-        MinWidth="1040"
+        MinWidth="1220"
         WindowStartupLocation="CenterScreen"
         Background="#F4F6FB"
         FontFamily="Segoe UI"
@@ -23,7 +24,16 @@
     </Window.Resources>
 
     <Grid Background="#F4F6FB">
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <local:SidebarControl Grid.Column="0"
+                              ActiveItem="BM4"/>
+
+        <ScrollViewer Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <Grid MaxWidth="1128"
                   Margin="32,28,32,36"
