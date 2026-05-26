@@ -53,7 +53,7 @@ namespace WpfApp1
 
         private void BtnQuyDinh_Click(object sender, RoutedEventArgs e)
         {
-            QuyDinhWindow window = new QuyDinhWindow();
+            var window = new QuyDinhWindow();
             window.ShowDialog();
         }
     }

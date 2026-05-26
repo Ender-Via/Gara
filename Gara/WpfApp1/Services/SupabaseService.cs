@@ -268,5 +268,38 @@ namespace WpfApp1.Services
                 return new List<TraCuuXeRow>();
             }
         }
+            
+        //Quy định Window
+
+        public class SystemRegulation
+        {
+            public string RegulationKey { get; set; } = "";
+            public string RegulationValue { get; set; } = "";
+            public string Description { get; set; } = "";
+        }
+
+        public class SystemRegulationHistory
+        {
+            public DateTime ChangedAt { get; set; }
+            public string RegulationKey { get; set; } = "";
+            public string OldValue { get; set; } = "";
+            public string NewValue { get; set; } = "";
+            public string ChangedBy { get; set; } = "";
+        }
+
+        public async Task<List<SystemRegulation>> GetSystemRegulationsAsync()
+        {
+            return await Task.FromResult(new List<SystemRegulation>());
+        }
+
+        public async Task<List<SystemRegulationHistory>> GetSystemRegulationHistoryAsync()
+        {
+            return await Task.FromResult(new List<SystemRegulationHistory>());
+        }
+
+        public async Task UpsertSystemRegulationAsync(string key, string value, string description)
+        {
+            await Task.CompletedTask;
+        }
     }
 }

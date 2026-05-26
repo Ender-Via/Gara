@@ -263,6 +263,28 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         public string Description { get; set; }
     }
 
+    [Table("system_regulation_history")]
+    public class SystemRegulationHistory : BaseModel
+    {
+        [PrimaryKey("id", false)]
+        public string Id { get; set; }
+
+        [Column("regulation_key")]
+        public string RegulationKey { get; set; }
+
+        [Column("old_value")]
+        public string OldValue { get; set; }
+
+        [Column("new_value")]
+        public string NewValue { get; set; }
+
+        [Column("changed_by")]
+        public string ChangedBy { get; set; }
+
+        [Column("changed_at")]
+        public DateTime ChangedAt { get; set; }
+    }
+
     // DTO dùng để hiển thị tra cứu xe (không map DB)
     public class TraCuuXeRow
     {

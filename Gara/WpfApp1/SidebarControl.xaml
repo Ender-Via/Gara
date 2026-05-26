@@ -29,10 +29,10 @@
 
         <StackPanel Grid.Row="1">
             <RadioButton Content="Tiếp Nhận Xe (BM1)" Style="{StaticResource NavMenuButton}" Tag="FileDocumentOutline"/>
-            <RadioButton Content="Phiếu Sửa Chữa (BM2)" Style="{StaticResource NavMenuButton}" Tag="WrenchOutline" IsChecked="True"/>
+            <RadioButton Content="Phiếu Sửa Chữa (BM2)" Style="{StaticResource NavMenuButton}" Tag="WrenchOutline"/>
             <RadioButton Content="Tra Cứu Xe (BM3)" Style="{StaticResource NavMenuButton}" Tag="Magnify"/>
             <RadioButton Content="Phiếu Thu Tiền (BM4)" Style="{StaticResource NavMenuButton}" Tag="Cash"/>
-            <RadioButton Content="Báo Cáo Tháng (BM5)" Style="{StaticResource NavMenuButton}" Tag="ChartBar"/>
+            <RadioButton Content="Báo Cáo Tháng (BM5)" Style="{StaticResource NavMenuButton}" Tag="ChartBar" IsChecked="True"/>
             <RadioButton Content="Thay Đổi Quy Định (QĐ6)" Style="{StaticResource NavMenuButton}" Tag="CogOutline"/>
         </StackPanel>
 
