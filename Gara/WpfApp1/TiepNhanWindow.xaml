@@ -5,23 +5,62 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="Tiếp Nhận Xe Sửa" Height="350" Width="700" WindowStartupLocation="CenterScreen">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        Title="Tiếp Nhận Xe Sửa (BM1)"
+        Height="780"
+        Width="1440"
+        MinHeight="720"
+        MinWidth="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#F4F6FB"
+        FontFamily="Segoe UI">
+    <Grid Background="#F4F6FB">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <TextBlock Text="TIẾP NHẬN XE SỬA" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+        <local:SidebarControl Grid.Column="0"
+                              ActiveItem="BM1"/>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid MaxWidth="940"
+                  Margin="40,48,40,40"
+                  HorizontalAlignment="Center">
+                <Border Background="White"
+                        BorderBrush="#D9DEEA"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="34,32,34,34">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="18"
+                                          ShadowDepth="3"
+                                          Opacity="0.07"
+                                          Color="#1D2433"/>
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="TIẾP NHẬN XE SỬA"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#111827"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,28"/>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -50,11 +89,15 @@
             <!-- Row 3 -->
             <TextBlock Text="Ngày tiếp nhận:" Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" FontWeight="SemiBold"/>
             <DatePicker x:Name="dpNgayTiepNhan" Grid.Row="3" Grid.Column="1" Margin="5" Padding="4"/>
-        </Grid>
+                        </Grid>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-            <Button x:Name="btnLuu" Content="Lưu" Width="100" Height="35" Margin="10" Click="btnLuu_Click"/>
-            <Button x:Name="btnDong" Content="Đóng" Width="100" Height="35" Margin="10" Click="btnDong_Click"/>
-        </StackPanel>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,28,0,0">
+                            <Button x:Name="btnLuu" Content="Lưu" Width="120" Height="40" Margin="10" Click="btnLuu_Click"/>
+                            <Button x:Name="btnDong" Content="Đóng" Width="120" Height="40" Margin="10" Click="btnDong_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>

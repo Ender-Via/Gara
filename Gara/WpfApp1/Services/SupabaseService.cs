@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using WpfApp1.Models;
+using WpfApp1.ViewModels;
 using static Postgrest.Constants;
 
 namespace WpfApp1.Services
@@ -165,47 +166,186 @@ namespace WpfApp1.Services
             return true; 
         }
 
-        public async Task<(Vehicle vehicle, decimal currentDebt)> GetVehicleDebtAsync(string licensePlate)
+        public async Task<PaymentDebtSummary> GetVehiclePaymentSummaryAsync(string licensePlate)
         {
-            
+            var summary = new PaymentDebtSummary();
+
             var vehicleResponse = await _client.From<Vehicle>()
                 .Filter("license_plate", Operator.Equals, licensePlate)
                 .Get();
 
             var vehicle = vehicleResponse.Models.FirstOrDefault();
-            if (vehicle == null) return (null, 0);
+            if (vehicle == null) return summary;
 
-           
+            summary.Vehicle = vehicle;
+
+            if (!string.IsNullOrWhiteSpace(vehicle.CustomerId))
+            {
+                var customerResponse = await _client.From<Customer>()
+                    .Filter("id", Operator.Equals, vehicle.CustomerId)
+                    .Get();
+                summary.Customer = customerResponse.Models.FirstOrDefault();
+            }
+
             var receiptsResponse = await _client.From<ServiceReceipt>()
                 .Filter("vehicle_id", Operator.Equals, vehicle.Id)
                 .Get();
             var receiptIds = receiptsResponse.Models.Select(r => r.Id).ToList();
 
-            if (!receiptIds.Any()) return (vehicle, 0);
+            if (!receiptIds.Any()) return summary;
 
-            
             var ordersResponse = await _client.From<RepairOrder>()
                 .Filter("service_receipt_id", Operator.In, receiptIds)
                 .Get();
             var orders = ordersResponse.Models;
             var orderIds = orders.Select(o => o.Id).ToList();
 
-            decimal totalInvoiced = orders.Sum(o => o.TotalAmount ?? 0);
+            summary.TotalRepairAmount = orders.Sum(o => o.TotalAmount ?? 0);
+            summary.LatestRepairOrderId = orders
+                .OrderByDescending(o => o.RepairDate)
+                .FirstOrDefault()?.Id ?? string.Empty;
 
-            
-            decimal totalPaid = 0;
             if (orderIds.Any())
             {
                 var paymentsResponse = await _client.From<PaymentReceipt>()
                     .Filter("repair_order_id", Operator.In, orderIds)
                     .Get();
-                totalPaid = paymentsResponse.Models.Sum(p => p.AmountReceived ?? 0);
+                summary.TotalPaidAmount = paymentsResponse.Models.Sum(p => p.AmountReceived ?? 0);
             }
 
-            return (vehicle, totalInvoiced - totalPaid);
+            summary.CurrentDebt = summary.TotalRepairAmount - summary.TotalPaidAmount;
+            return summary;
+        }
+
+        public async Task<(Vehicle? vehicle, decimal currentDebt)> GetVehicleDebtAsync(string licensePlate)
+        {
+            var summary = await GetVehiclePaymentSummaryAsync(licensePlate);
+            return (summary.Vehicle, summary.CurrentDebt);
+        }
+
+        public async Task<List<RecentPaymentReceiptRow>> GetRecentPaymentReceiptsAsync(int limit = 5)
+        {
+            var paymentsResponse = await _client.From<PaymentReceipt>()
+                .Order("receipt_date", Ordering.Descending)
+                .Limit(limit)
+                .Get();
+            var payments = paymentsResponse.Models?.ToList() ?? new List<PaymentReceipt>();
+
+            if (!payments.Any())
+                return new List<RecentPaymentReceiptRow>();
+
+            var orderIds = payments
+                .Select(p => p.RepairOrderId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
+
+            var orders = new List<RepairOrder>();
+            if (orderIds.Any())
+            {
+                var ordersResponse = await _client.From<RepairOrder>()
+                    .Filter("id", Operator.In, orderIds)
+                    .Get();
+                orders = ordersResponse.Models?.ToList() ?? new List<RepairOrder>();
+            }
+
+            var receiptIds = orders
+                .Select(o => o.ServiceReceiptId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
+
+            var receipts = new List<ServiceReceipt>();
+            if (receiptIds.Any())
+            {
+                var receiptsResponse = await _client.From<ServiceReceipt>()
+                    .Filter("id", Operator.In, receiptIds)
+                    .Get();
+                receipts = receiptsResponse.Models?.ToList() ?? new List<ServiceReceipt>();
+            }
+
+            var vehicleIds = receipts
+                .Select(r => r.VehicleId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
+
+            var vehicles = new List<Vehicle>();
+            if (vehicleIds.Any())
+            {
+                var vehiclesResponse = await _client.From<Vehicle>()
+                    .Filter("id", Operator.In, vehicleIds)
+                    .Get();
+                vehicles = vehiclesResponse.Models?.ToList() ?? new List<Vehicle>();
+            }
+
+            var customerIds = vehicles
+                .Select(v => v.CustomerId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
+
+            var customers = new List<Customer>();
+            if (customerIds.Any())
+            {
+                var customersResponse = await _client.From<Customer>()
+                    .Filter("id", Operator.In, customerIds)
+                    .Get();
+                customers = customersResponse.Models?.ToList() ?? new List<Customer>();
+            }
+
+            var orderMap = orders.ToDictionary(o => o.Id);
+            var receiptMap = receipts.ToDictionary(r => r.Id);
+            var vehicleMap = vehicles.ToDictionary(v => v.Id);
+            var customerMap = customers.ToDictionary(c => c.Id);
+
+            return payments.Select((payment, index) =>
+            {
+                orderMap.TryGetValue(payment.RepairOrderId ?? string.Empty, out var order);
+                receiptMap.TryGetValue(order?.ServiceReceiptId ?? string.Empty, out var receipt);
+                vehicleMap.TryGetValue(receipt?.VehicleId ?? string.Empty, out var vehicle);
+                customerMap.TryGetValue(vehicle?.CustomerId ?? string.Empty, out var customer);
+
+                return new RecentPaymentReceiptRow
+                {
+                    MaPhieu = GetPaymentReceiptDisplayCode(payment, index),
+                    ChuXe = customer?.FullName ?? "Không rõ",
+                    BienSo = vehicle?.LicensePlate ?? "Không rõ",
+                    NgayThu = payment.ReceiptDate.ToString("dd/MM/yyyy"),
+                    SoTien = $"{payment.AmountReceived ?? 0:N0}",
+                    TrangThai = "THÀNH CÔNG"
+                };
+            }).ToList();
         }
 
        
+        public async Task<PaymentReceipt> CreatePaymentReceiptAsync(string licensePlate, decimal soTienThu, DateTime ngayThu, string ghiChu)
+        {
+            if (soTienThu <= 0)
+                throw new Exception("Số tiền thu không hợp lệ!");
+
+            var summary = await GetVehiclePaymentSummaryAsync(licensePlate);
+            if (summary.Vehicle == null)
+                throw new Exception("Không tìm thấy xe này trong hệ thống!");
+
+            if (string.IsNullOrWhiteSpace(summary.LatestRepairOrderId))
+                throw new Exception("Xe này chưa có phiếu sửa chữa để lập phiếu thu.");
+
+            if (soTienThu > summary.CurrentDebt)
+                throw new Exception($"Số tiền thu ({soTienThu:N0}) không được vượt quá số tiền nợ ({summary.CurrentDebt:N0}).");
+
+            var newPayment = new PaymentReceipt
+            {
+                RepairOrderId = summary.LatestRepairOrderId,
+                AmountReceived = soTienThu,
+                ReceiptDate = ngayThu,
+                Note = ghiChu
+            };
+
+            var response = await _client.From<PaymentReceipt>().Insert(newPayment);
+            return response.Models?.FirstOrDefault() ?? newPayment;
+        }
+
         public async Task<bool> LuuPhieuThuAsync(string repairOrderId, decimal soTienThu, DateTime ngayThu, string ghiChu)
         {
             var newPayment = new PaymentReceipt
@@ -218,6 +358,21 @@ namespace WpfApp1.Services
 
             await _client.From<PaymentReceipt>().Insert(newPayment);
             return true;
+        }
+
+        private static string GetPaymentReceiptDisplayCode(PaymentReceipt payment, int index)
+        {
+            const string notePrefix = "Phiếu thu ";
+            var note = payment.Note?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(note) && note.StartsWith(notePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var code = note[notePrefix.Length..].Trim();
+                var firstSpaceIndex = code.IndexOf(' ');
+                return firstSpaceIndex > 0 ? code[..firstSpaceIndex] : code;
+            }
+
+            return $"PT{payment.ReceiptDate:ddMMyy}{index + 1:D3}";
         }
 
         public async Task<string> GetNextPaymentCodeAsync()

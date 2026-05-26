@@ -1,47 +1,57 @@
-﻿using System;
-using System.Linq;
+using System;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using WpfApp1.Models;
 using WpfApp1.Services;
+using WpfApp1.ViewModels;
 
 namespace WpfApp1
 {
     public partial class PhieuThuWindow : Window
     {
-        private SupabaseService _service;
-        private decimal _currentDebt = 0; // Lưu nợ hiện tại để check QĐ4
-        private string _lastRepairOrderId = ""; // Lưu ID lệnh sửa chữa gần nhất để gán phiếu thu
+        private readonly SupabaseService _service;
+        private readonly ObservableCollection<RecentPaymentReceiptRow> _recentPayments = new();
+        private decimal _currentDebt;
+        private string _lastRepairOrderId = string.Empty;
+        private string _loadedLicensePlate = string.Empty;
 
         public PhieuThuWindow()
         {
             InitializeComponent();
-            _service = new SupabaseService();
-            
+
+            _service = App.DB ?? new SupabaseService();
+            dgGiaoDichGanDay.ItemsSource = _recentPayments;
 
             txtMaPhieu.IsReadOnly = true;
-            txtMaPhieu.Background = System.Windows.Media.Brushes.LightGray;
-
-            Loaded += async (s, e) => {
-                await _service.InitializeAsync();
-                await GenerateAutoCode(); 
-            };
-
-            // Gán ngày mặc định là hôm nay
             dpNgayThu.SelectedDate = DateTime.Now;
 
-            // Đăng ký sự kiện khi nhập xong biển số xe
+            Loaded += PhieuThuWindow_Loaded;
             txtBienSo.LostFocus += TxtBienSo_LostFocus;
         }
 
-
-        private async Task GenerateAutoCode()
+        private async void PhieuThuWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                string nextCode = await _service.GetNextPaymentCodeAsync();
-                txtMaPhieu.Text = nextCode;
+                if (_service._client == null)
+                    await _service.InitializeAsync();
+
+                await GenerateAutoCodeAsync();
+                await LoadRecentPaymentsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải phiếu thu tiền: " + ex.Message);
+            }
+        }
+
+        private async Task GenerateAutoCodeAsync()
+        {
+            try
+            {
+                txtMaPhieu.Text = await _service.GetNextPaymentCodeAsync();
             }
             catch (Exception ex)
             {
@@ -49,96 +59,162 @@ namespace WpfApp1
                 MessageBox.Show("Lỗi tự động tạo mã phiếu: " + ex.Message);
             }
         }
+
+        private async Task LoadRecentPaymentsAsync()
+        {
+            _recentPayments.Clear();
+
+            var rows = await _service.GetRecentPaymentReceiptsAsync();
+            foreach (var row in rows)
+            {
+                _recentPayments.Add(row);
+            }
+
+            txtEmptyRecentPayments.Visibility = rows.Count == 0
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
         private async void TxtBienSo_LostFocus(object sender, RoutedEventArgs e)
         {
-            string bienSo = txtBienSo.Text.Trim();
-            if (string.IsNullOrEmpty(bienSo)) return;
+            var bienSo = txtBienSo.Text.Trim();
+            if (string.IsNullOrWhiteSpace(bienSo))
+                return;
 
+            await LoadVehiclePaymentContextAsync(bienSo, showSuccessMessage: true);
+        }
+
+        private async Task<bool> LoadVehiclePaymentContextAsync(string bienSo, bool showSuccessMessage)
+        {
             try
             {
-                // Gọi service lấy data nợ
-                var (vehicle, debt) = await _service.GetVehicleDebtAsync(bienSo);
-
-                if (vehicle != null)
+                var summary = await _service.GetVehiclePaymentSummaryAsync(bienSo);
+                if (summary.Vehicle == null)
                 {
-                    _currentDebt = debt;
+                    ResetDebtSummary();
+                    MessageBox.Show("Không tìm thấy xe này trong hệ thống!");
+                    return false;
+                }
 
-                    // Lấy thông tin khách hàng (phải lấy thêm từ bảng Customer)
-                    var customerRes = await _service._client.From<Customer>()
-                        .Filter("id", Postgrest.Constants.Operator.Equals, vehicle.CustomerId)
-                        .Get();
-                    var customer = customerRes.Models.FirstOrDefault();
+                _currentDebt = summary.CurrentDebt;
+                _lastRepairOrderId = summary.LatestRepairOrderId;
+                _loadedLicensePlate = bienSo;
 
-                    if (customer != null)
-                    {
-                        txtTenKH.Text = customer.FullName;
-                        txtSDT.Text = customer.Phone;
-                        txtEmail.Text = customer.Email;
-                    }
+                txtTenKH.Text = summary.Customer?.FullName ?? string.Empty;
+                txtSDT.Text = summary.Customer?.Phone ?? string.Empty;
+                txtEmail.Text = summary.Customer?.Email ?? string.Empty;
 
-                    
-                    var lastOrderRes = await _service._client.From<RepairOrder>()
-                        .Order("repair_date", Postgrest.Constants.Ordering.Descending)
-                        .Get(); 
+                UpdateDebtSummary(summary.TotalRepairAmount, summary.TotalPaidAmount, summary.CurrentDebt);
 
-                    _lastRepairOrderId = lastOrderRes.Models.FirstOrDefault()?.Id ?? "";
-
+                if (showSuccessMessage)
+                {
                     MessageBox.Show($"Thông tin xe hợp lệ. Số tiền đang nợ: {_currentDebt:N0} VNĐ");
                 }
-                else
-                {
-                    MessageBox.Show("Không tìm thấy xe này trong hệ thống!");
-                }
+
+                return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi lấy thông tin: " + ex.Message);
+                MessageBox.Show("Lỗi khi lấy thông tin công nợ: " + ex.Message);
+                return false;
             }
         }
 
         private async void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            // 1. Validate dữ liệu đầu vào
-            if (string.IsNullOrEmpty(txtBienSo.Text) || string.IsNullOrEmpty(txtSoTien.Text))
+            var bienSo = txtBienSo.Text.Trim();
+            if (string.IsNullOrWhiteSpace(bienSo) || string.IsNullOrWhiteSpace(txtSoTien.Text))
             {
-                MessageBox.Show("Vui lòng nhập đầy đủ Biển số và Số tiền thu!");
+                MessageBox.Show("Vui lòng nhập đầy đủ biển số và số tiền thu!");
                 return;
             }
 
-            if (!decimal.TryParse(txtSoTien.Text, out decimal soTienThu))
+            if (!TryParseMoney(txtSoTien.Text, out var soTienThu) || soTienThu <= 0)
             {
                 MessageBox.Show("Số tiền thu không hợp lệ!");
                 return;
             }
 
-            // 2. Kiểm tra QĐ4: Số tiền thu không vượt quá tiền nợ
+            if (!string.Equals(_loadedLicensePlate, bienSo, StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(_lastRepairOrderId))
+            {
+                var loaded = await LoadVehiclePaymentContextAsync(bienSo, showSuccessMessage: false);
+                if (!loaded)
+                    return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_lastRepairOrderId))
+            {
+                MessageBox.Show("Xe này chưa có phiếu sửa chữa để lập phiếu thu.");
+                return;
+            }
+
             if (soTienThu > _currentDebt)
             {
                 MessageBox.Show($"Vi phạm quy định 4: Số tiền thu ({soTienThu:N0}) không được vượt quá số tiền nợ ({_currentDebt:N0})!");
                 return;
             }
 
+            var originalButtonContent = btnSave.Content;
+            btnSave.IsEnabled = false;
+            btnSave.Content = "Đang xử lý...";
+
             try
             {
-                string ghiChu = new TextRange(txtGhiChu.Document.ContentStart, txtGhiChu.Document.ContentEnd).Text.Trim();
-                DateTime ngayThu = dpNgayThu.SelectedDate ?? DateTime.Now;
+                var ghiChu = string.IsNullOrWhiteSpace(txtGhiChu.Text)
+                    ? $"Phiếu thu {txtMaPhieu.Text}"
+                    : txtGhiChu.Text.Trim();
+                var ngayThu = dpNgayThu.SelectedDate ?? DateTime.Now;
 
-                // 3. Gọi Service lưu vào Database
-                bool result = await _service.LuuPhieuThuAsync(_lastRepairOrderId, soTienThu, ngayThu, ghiChu);
+                await _service.CreatePaymentReceiptAsync(bienSo, soTienThu, ngayThu, ghiChu);
 
-                if (result)
-                {
-                    MessageBox.Show("Lưu phiếu thu tiền thành công!");
-                    this.Close(); // Hoặc xóa trắng form
-                }
+                MessageBox.Show("Lưu phiếu thu tiền thành công!");
+                txtSoTien.Text = string.Empty;
+
+                await LoadVehiclePaymentContextAsync(bienSo, showSuccessMessage: false);
+                await GenerateAutoCodeAsync();
+                await LoadRecentPaymentsAsync();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi lưu: " + ex.Message);
             }
+            finally
+            {
+                btnSave.Content = originalButtonContent;
+                btnSave.IsEnabled = true;
+            }
         }
 
-        // Dummy event theo XAML 
-        private void txtMaPhieu_TextChanged(object sender, TextChangedEventArgs e) { }
+        private static bool TryParseMoney(string value, out decimal amount)
+        {
+            var normalized = value
+                .Replace("VNĐ", string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Replace("VND", string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Trim();
+
+            return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.GetCultureInfo("vi-VN"), out amount)
+                || decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out amount)
+                || decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.CurrentCulture, out amount);
+        }
+
+        private void UpdateDebtSummary(decimal totalRepairAmount, decimal totalPaidAmount, decimal currentDebt)
+        {
+            txtTongTienSua.Text = $"{totalRepairAmount:N0} VND";
+            txtDaThanhToan.Text = $"{totalPaidAmount:N0} VND";
+            txtConNo.Text = $"{currentDebt:N0} VND";
+        }
+
+        private void ResetDebtSummary()
+        {
+            _currentDebt = 0;
+            _lastRepairOrderId = string.Empty;
+            _loadedLicensePlate = string.Empty;
+            UpdateDebtSummary(0, 0, 0);
+        }
+
+        private void txtMaPhieu_TextChanged(object sender, TextChangedEventArgs e)
+        {
+        }
     }
 }
