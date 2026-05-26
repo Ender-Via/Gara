@@ -1,41 +1,408 @@
-﻿<Window x:Class="WpfApp1.PhieuThuWindow"
+<Window x:Class="WpfApp1.PhieuThuWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="PhieuThuWindow" Height="700" Width="702">
-    <Grid Margin="0,0,0,4">
-        <Label Content="Mã phiếu:" Margin="35,67,565,557" FontSize="20" FontFamily="Bahnschrift"/>
-        <Label Content="Ghi chú:" Margin="35,504,530,130" FontSize="15" FontFamily="Bahnschrift"/>
-        <Label Content="Họ và tên:" HorizontalAlignment="Left" Height="39" Margin="35,149,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
-        <TextBox x:Name="txtTenKH" HorizontalAlignment="Left" Height="31" Margin="172,149,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
-        <Label Content="Số điện thoại:" HorizontalAlignment="Left" Height="34" Margin="35,194,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
-        <TextBox x:Name="txtSDT" HorizontalAlignment="Left" Height="33" Margin="172,195,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
-        <Label Content="Thông tin phương tiện" HorizontalAlignment="Left" Height="38" Margin="35,292,0,0" VerticalAlignment="Top" Width="263" FontSize="25" FontFamily="Bahnschrift"/>
-        <Label Content="Biển số xe:" HorizontalAlignment="Left" Height="34" Margin="35,335,0,0" VerticalAlignment="Top" Width="109" FontSize="20" RenderTransformOrigin="0.486,-2.322" FontFamily="Bahnschrift"/>
-        <TextBox x:Name="txtBienSo" HorizontalAlignment="Left" Height="30" Margin="172,335,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
-        <Label Content="Hiệu xe:" HorizontalAlignment="Left" Height="32" Margin="35,374,0,0" VerticalAlignment="Top" Width="83" FontSize="20" RenderTransformOrigin="0.47,-0.53" FontFamily="Bahnschrift"/>
-        <TextBox x:Name="txtHieuXe" HorizontalAlignment="Left" Height="32" Margin="172,374,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
-        <Label Content="Ngày thu tiền:" HorizontalAlignment="Left" Height="32" Margin="35,419,0,0" VerticalAlignment="Top" Width="155" FontSize="20" FontFamily="Bahnschrift"/>
-        <Label Content="Email" HorizontalAlignment="Left" Height="34" Margin="35,242,0,0" VerticalAlignment="Top" Width="132" FontSize="20" FontFamily="Bahnschrift"/>
-        <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Height="33" Margin="172,242,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" FontSize="20" FontFamily="Bahnschrift"/>
-        <DatePicker x:Name="dpNgayThu" HorizontalAlignment="Left" Height="32" Margin="172,419,0,0" VerticalAlignment="Top" Width="150" FontSize="20"/>
-        <TextBox x:Name="txtSoTien" HorizontalAlignment="Left" Height="28" Margin="172,471,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="478" Background="White" FontWeight="Bold" FontSize="20" FontFamily="Bahnschrift" />
-        <Label Content="Số tiền thu:" HorizontalAlignment="Left" Height="32" Margin="35,467,0,0" VerticalAlignment="Top" Width="112" FontSize="20" RenderTransformOrigin="0.286,0.408" FontFamily="Bahnschrift"/>
-        <Label Content="Phiếu thu tiền" HorizontalAlignment="Left" Height="52" Margin="250,10,0,0" VerticalAlignment="Top" Width="300" FontSize="40" FontWeight="Bold" FontFamily="Franklin Gothic Heavy"/>
-        <Label Content="Thông tin khách hàng" HorizontalAlignment="Left" Height="38" Margin="35,102,0,0" VerticalAlignment="Top" Width="263" FontSize="25" FontFamily="Bahnschrift"/>
-        <Button x:Name="btnSave" Content="Lưu" HorizontalAlignment="Left" Height="34" Margin="91,607,0,0" VerticalAlignment="Top" Width="114" Click="btnSave_Click"/>
-        <Button Content="In" HorizontalAlignment="Left" Height="34" Margin="484,607,0,0" VerticalAlignment="Top" Width="115"/>
-        <RichTextBox x:Name="txtGhiChu" HorizontalAlignment="Left" Height="62" Margin="35,533,0,0" VerticalAlignment="Top" Width="615" FontSize="14" FontFamily="Bahnschrift">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text="Nhập ghi chú: "/>
-                </Paragraph>
-            </FlowDocument>
-        </RichTextBox>
-        <TextBox x:Name="txtMaPhieu" HorizontalAlignment="Left" Height="31" Margin="137,67,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="110" FontSize="20" TextChanged="txtMaPhieu_TextChanged" FontFamily="Bahnschrift"/>
+        Title="Phiếu Thu Tiền (BM4)"
+        Height="780"
+        Width="1180"
+        MinHeight="720"
+        MinWidth="1040"
+        WindowStartupLocation="CenterScreen"
+        Background="#F4F6FB"
+        FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/PhieuThuStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
 
+    <Grid Background="#F4F6FB">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid MaxWidth="1128"
+                  Margin="32,28,32,36"
+                  HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="PHIẾU THU TIỀN (BM4)"
+                           Foreground="#080B12"
+                           FontWeight="Bold"
+                           FontSize="28"
+                           Margin="0,0,0,14"/>
+
+                <Border Grid.Row="1"
+                        Background="#EEF3FF"
+                        BorderBrush="#D9E3FF"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16,11"
+                        Margin="0,0,0,24">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="18"
+                                Height="18"
+                                CornerRadius="9"
+                                Background="#3155D4"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="i"
+                                       Foreground="White"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Quy định: Số tiền thu không vượt quá số tiền khách hàng đang nợ."
+                                   Foreground="#2447C4"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Grid Grid.Row="2" Margin="0,0,0,34">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="24"/>
+                        <ColumnDefinition Width="0.98*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource Bm4CardStyle}"
+                            Padding="30,28,30,30">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="txtMaPhieu" Visibility="Collapsed"/>
+                            <TextBox x:Name="txtGhiChu" Visibility="Collapsed"/>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,20">
+                                <TextBlock Text="Họ tên chủ xe" Style="{StaticResource Bm4LabelStyle}"/>
+                                <TextBox x:Name="txtTenKH"
+                                         Style="{StaticResource Bm4InputStyle}"
+                                         Tag="Nhập tên khách hàng"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,20">
+                                <TextBlock Text="Biển số xe" Style="{StaticResource Bm4LabelStyle}"/>
+                                <TextBox x:Name="txtBienSo"
+                                         Style="{StaticResource Bm4InputStyle}"
+                                         Tag="29A-123.45"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,20">
+                                <TextBlock Text="Điện thoại" Style="{StaticResource Bm4LabelStyle}"/>
+                                <TextBox x:Name="txtSDT"
+                                         Style="{StaticResource Bm4InputStyle}"
+                                         Tag="0901 234 567"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,20">
+                                <TextBlock Text="Email" Style="{StaticResource Bm4LabelStyle}"/>
+                                <TextBox x:Name="txtEmail"
+                                         Style="{StaticResource Bm4InputStyle}"
+                                         Tag="example@gmail.com"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,28">
+                                <TextBlock Text="Ngày thu tiền" Style="{StaticResource Bm4LabelStyle}"/>
+                                <DatePicker x:Name="dpNgayThu"
+                                            Style="{StaticResource Bm4DatePickerStyle}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,28">
+                                <TextBlock Text="Số tiền thu" Style="{StaticResource Bm4LabelStyle}"/>
+                                <Grid>
+                                    <TextBox x:Name="txtSoTien"
+                                             Style="{StaticResource Bm4InputStyle}"
+                                             Tag="0.00"/>
+                                    <TextBlock Text="VND"
+                                               Foreground="#667085"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               Margin="0,0,14,0"
+                                               IsHitTestVisible="False"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <Button x:Name="btnSave"
+                                    Grid.Row="3"
+                                    Grid.ColumnSpan="3"
+                                    Content="Xác nhận thu tiền"
+                                    Style="{StaticResource Bm4PrimaryButtonStyle}"
+                                    Click="btnSave_Click"/>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="18"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0"
+                                Style="{StaticResource Bm4DebtCardStyle}"
+                                Padding="24">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,25">
+                                    <Border Width="18"
+                                            Height="18"
+                                            CornerRadius="4"
+                                            BorderBrush="#9BAEFF"
+                                            BorderThickness="1.5"
+                                            Margin="0,0,10,0">
+                                        <TextBlock Text="i"
+                                                   Foreground="#9BAEFF"
+                                                   FontWeight="Bold"
+                                                   FontSize="10"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Thông tin công nợ"
+                                               Foreground="White"
+                                               FontWeight="Bold"
+                                               FontSize="16"/>
+                                </StackPanel>
+
+                                <Grid Margin="0,0,0,18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Tổng tiền sửa chữa:" Style="{StaticResource Bm4DebtLabelStyle}"/>
+                                    <TextBlock x:Name="txtTongTienSua"
+                                               Grid.Column="1"
+                                               Text="0 VND"
+                                               Style="{StaticResource Bm4DebtValueStyle}"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Đã thanh toán:" Style="{StaticResource Bm4DebtLabelStyle}"/>
+                                    <TextBlock x:Name="txtDaThanhToan"
+                                               Grid.Column="1"
+                                               Text="0 VND"
+                                               Style="{StaticResource Bm4DebtValueStyle}"/>
+                                </Grid>
+
+                                <Border Background="#233B91"
+                                        CornerRadius="5"
+                                        Padding="15,13"
+                                        Margin="0,4,0,20">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Còn nợ hiện tại:"
+                                                   Foreground="White"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="13"/>
+                                        <TextBlock x:Name="txtConNo"
+                                                   Grid.Column="1"
+                                                   Text="0 VND"
+                                                   Foreground="White"
+                                                   FontWeight="Bold"
+                                                   FontSize="13"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border Background="#303541"
+                                        CornerRadius="5"
+                                        Padding="14">
+                                    <TextBlock Text="Lưu ý: Mọi giao dịch thu tiền sẽ được lưu vào sổ quỹ và tự động cập nhật báo cáo doanh thu tháng."
+                                               Foreground="#F5F7FB"
+                                               FontSize="11.5"
+                                               TextWrapping="Wrap"
+                                               LineHeight="18"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2"
+                                CornerRadius="8"
+                                Height="168"
+                                ClipToBounds="True">
+                            <Grid>
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#2F3542" Offset="0"/>
+                                        <GradientStop Color="#171C27" Offset="0.58"/>
+                                        <GradientStop Color="#101522" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+
+                                <Rectangle Height="1"
+                                           Fill="#FFFFFF"
+                                           Opacity="0.08"
+                                           VerticalAlignment="Top"
+                                           Margin="0,42,0,0"/>
+                                <Rectangle Width="88"
+                                           Height="168"
+                                           Fill="#3155D4"
+                                           Opacity="0.18"
+                                           HorizontalAlignment="Right"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <Rectangle.RenderTransform>
+                                        <RotateTransform Angle="17"/>
+                                    </Rectangle.RenderTransform>
+                                </Rectangle>
+                                <Ellipse Width="132"
+                                         Height="132"
+                                         Stroke="#5F75EA"
+                                         StrokeThickness="1.2"
+                                         Opacity="0.28"
+                                         HorizontalAlignment="Right"
+                                         VerticalAlignment="Top"
+                                         Margin="0,-46,-34,0"/>
+                                <Path Data="M36,100 L66,76 H132 L156,100 H178 C185,100 190,105 190,112 V123 H172 C169,113 160,106 149,106 C138,106 129,113 126,123 H78 C75,113 66,106 55,106 C44,106 35,113 32,123 H22 V112 C22,105 28,100 36,100 Z"
+                                      Fill="#FFFFFF"
+                                      Opacity="0.12"
+                                      Stretch="Uniform"
+                                      Width="208"
+                                      Height="72"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Margin="0,-10,0,0"/>
+                                <StackPanel VerticalAlignment="Bottom" Margin="22">
+                                    <TextBlock Text="Dịch vụ Chuyên Nghiệp"
+                                               Foreground="White"
+                                               FontWeight="Bold"
+                                               FontSize="14"/>
+                                    <TextBlock Text="Garage Management System v2.0"
+                                               Foreground="#D4DAE8"
+                                               FontSize="11.5"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="Giao dịch gần đây"
+                                   FontWeight="Bold"
+                                   Foreground="#111827"
+                                   FontSize="16"/>
+                        <TextBlock Text="Xem tất cả  →"
+                                   Style="{StaticResource Bm4LinkTextStyle}"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Border Grid.Row="1"
+                            Style="{StaticResource Bm4CardStyle}"
+                            Padding="0"
+                            ClipToBounds="True">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Background="#F3F6FB"
+                                    BorderBrush="#E5EAF3"
+                                    BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.05*"/>
+                                        <ColumnDefinition Width="1.45*"/>
+                                        <ColumnDefinition Width="1.05*"/>
+                                        <ColumnDefinition Width="1.05*"/>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="1.05*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="Mã Phiếu" Style="{StaticResource Bm4TableHeaderTextStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="Chủ Xe" Style="{StaticResource Bm4TableHeaderTextStyle}"/>
+                                    <TextBlock Grid.Column="2" Text="Biển Số" Style="{StaticResource Bm4TableHeaderTextStyle}"/>
+                                    <TextBlock Grid.Column="3" Text="Ngày Thu" Style="{StaticResource Bm4TableHeaderTextStyle}"/>
+                                    <TextBlock Grid.Column="4" Text="Số Tiền (VND)" Style="{StaticResource Bm4TableHeaderTextStyle}"/>
+                                    <TextBlock Grid.Column="5" Text="Trạng Thái" Style="{StaticResource Bm4TableHeaderTextStyle}"/>
+                                </Grid>
+                            </Border>
+
+                            <ItemsControl x:Name="dgGiaoDichGanDay"
+                                          Grid.Row="1">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border MinHeight="50"
+                                                BorderBrush="#EEF1F6"
+                                                BorderThickness="0,0,0,1"
+                                                Background="White">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="1.05*"/>
+                                                    <ColumnDefinition Width="1.45*"/>
+                                                    <ColumnDefinition Width="1.05*"/>
+                                                    <ColumnDefinition Width="1.05*"/>
+                                                    <ColumnDefinition Width="1.25*"/>
+                                                    <ColumnDefinition Width="1.05*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Text="{Binding MaPhieu}" Style="{StaticResource Bm4TableCellTextStyle}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding ChuXe}" Style="{StaticResource Bm4TableCellTextStyle}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding BienSo}" Style="{StaticResource Bm4TableCellTextStyle}"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding NgayThu}" Style="{StaticResource Bm4TableCellTextStyle}"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding SoTien}" Style="{StaticResource Bm4TableMoneyTextStyle}"/>
+                                                <Border Grid.Column="5"
+                                                        Style="{StaticResource Bm4StatusPillStyle}">
+                                                    <TextBlock Text="{Binding TrangThai}"
+                                                               Foreground="#15803D"
+                                                               FontWeight="Bold"
+                                                               FontSize="10.5"
+                                                               HorizontalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock x:Name="txtEmptyRecentPayments"
+                                       Grid.Row="2"
+                                       Text="Chưa có giao dịch thu tiền."
+                                       Foreground="#667085"
+                                       FontSize="13"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,22,0,24"
+                                       Visibility="Collapsed"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>
