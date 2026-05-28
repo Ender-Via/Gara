@@ -275,4 +275,14 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         public string ChuXe { get; set; }
         public decimal TienNo { get; set; }
     }
+
+    public class TraCuuDashBoardStats
+    {
+        public int TongSoXe { get; set; }
+        public int DangSuaChua { get; set; }
+        public decimal TongNo { get; set; }
+        public decimal HieuSuatSuaChua { get; set; }
+        public int LuotXeTrongNgay { get; set; }
+        public int MaxDailyVehicles { get; set; }
+    }
 }

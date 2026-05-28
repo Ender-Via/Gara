@@ -472,5 +472,76 @@ namespace WpfApp1.Services
                 return new List<TraCuuXeRow>();
             }
         }
+
+        public async Task<TraCuuDashBoardStats> GetDashboardStatsAsync()
+        {
+            var stats = new TraCuuDashBoardStats();
+
+            try
+            {
+                // Tổng số xe
+                var vehiclesResponse = await _client.From<Vehicle>().Get();
+                var vehicles = vehiclesResponse.Models?.ToList() ?? new List<Vehicle>();
+                stats.TongSoXe = vehicles.Count;
+
+                // Các thông tin tính nợ, đang sửa, ... 
+                var receiptsResponse = await _client.From<ServiceReceipt>().Get();
+                var receipts = receiptsResponse.Models?.ToList() ?? new List<ServiceReceipt>();
+                
+                var ordersResponse = await _client.From<RepairOrder>().Get();
+                var orders = ordersResponse.Models?.ToList() ?? new List<RepairOrder>();
+                
+                var paymentsResponse = await _client.From<PaymentReceipt>().Get();
+                var payments = paymentsResponse.Models?.ToList() ?? new List<PaymentReceipt>();
+
+                // Tính xe đang sửa: xe đã có phiếu tiếp nhận nhưng chưa trả đủ phiếu thu (hoặc không có phiếu thu)
+                var paidRepairOrders = payments.Select(p => p.RepairOrderId).Distinct().ToList();
+                // "Đang sửa chữa" ở đây giả định: đã tiếp nhận nhưng chưa có phiếu sửa hoặc có phiếu sửa mà chưa thanh toán
+                // Giả sử xe đang sửa là xe có ServiceReceipt nhưng chưa hoàn thành Payment.
+                int completedRepairs = 0;
+                
+                // Tính toán sơ bộ: 
+                // Có order -> Hoàn thành việc sửa chữa
+                // Chưa có order -> Đang sửa chữa (hoặc đang kiểm tra)
+                // Các rule này có thể custom theo nghiệp vụ
+                var receiptWithOrders = orders.Select(o => o.ServiceReceiptId).Distinct().ToList();
+                stats.DangSuaChua = receipts.Count(r => !receiptWithOrders.Contains(r.Id)); 
+                // Cập nhật dang sửa chữa (có thể là những xe chưa thu đủ tiền v.v) Để đơn giản:
+                if (stats.DangSuaChua < 0) stats.DangSuaChua = 0;
+
+                // Tính Tổng Nợ: Tổng tiền sửa - Tổng tiền đã thu
+                decimal tongTienSua = orders.Sum(o => o.TotalAmount ?? 0);
+                decimal tongDaThu = payments.Sum(p => p.AmountReceived ?? 0);
+                stats.TongNo = tongTienSua - tongDaThu;
+
+                // Lượt xe hôm nay
+                var today = DateTime.Today;
+                var tomorrow = today.AddDays(1);
+                var startDateStr = today.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                var endDateStr = tomorrow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+
+                var todayReceipts = await _client.From<ServiceReceipt>()
+                    .Filter("reception_date", Operator.GreaterThanOrEqual, startDateStr)
+                    .Filter("reception_date", Operator.LessThan, endDateStr)
+                    .Get();
+                stats.LuotXeTrongNgay = todayReceipts.Models?.Count ?? 0;
+
+                // Quy định
+                var regulations = await GetRegulationsAsync();
+                stats.MaxDailyVehicles = regulations?.MaxDailyVehicles ?? 30; // default 30
+
+                // Hiệu suất: Tổng xe hoàn thành / Tổng xe tiếp nhận trong toàn bộ (hoặc tháng)
+                if (receipts.Count > 0)
+                {
+                    stats.HieuSuatSuaChua = (decimal)receiptWithOrders.Count / receipts.Count * 100m;
+                }
+            }
+            catch(Exception ex)
+            {
+                // Error handled normally...
+            }
+
+            return stats;
+        }
     }
 }
