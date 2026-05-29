@@ -599,6 +599,43 @@ namespace WpfApp1.Services
             return response.Models.FirstOrDefault();
         }
 
+        public async Task<QuyDinhDashboardStats> GetQuyDinhDashboardStatsAsync()
+        {
+            var stats = new QuyDinhDashboardStats();
+
+            var regulations = await GetSystemRegulationsAsync();
+            stats.HieuXeToiDa = regulations?.MaxCarBrands ?? 10;
+            stats.LuotXeToiDaNgay = regulations?.MaxDailyVehicles ?? 30;
+            stats.DichVuToiDa = (regulations?.MaxParts ?? 100) + (regulations?.MaxLabors ?? 20);
+
+            var vehiclesResponse = await _client.From<Vehicle>().Get();
+            var vehicles = vehiclesResponse.Models?.ToList() ?? new List<Vehicle>();
+            stats.HieuXeHienTai = vehicles
+                .Select(v => v.CarBrandId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .Count();
+
+            var receiptsResponse = await _client.From<ServiceReceipt>().Get();
+            var receipts = receiptsResponse.Models?.ToList() ?? new List<ServiceReceipt>();
+            if (receipts.Any())
+            {
+                var minDate = receipts.Min(r => r.ReceptionDate).Date;
+                var maxDate = receipts.Max(r => r.ReceptionDate).Date;
+                var totalDays = Math.Max(1, (maxDate - minDate).Days + 1);
+                stats.LuotXeTrungBinhNgay = Math.Round((decimal)receipts.Count / totalDays, 1);
+            }
+            else
+            {
+                stats.LuotXeTrungBinhNgay = 0;
+            }
+
+            var orderCount = (await _client.From<RepairOrder>().Get()).Models?.Count ?? 0;
+            stats.DichVuDangNiemYet = orderCount;
+
+            return stats;
+        }
+
         public async Task<List<Models.SystemRegulationHistory>> GetSystemRegulationHistoryAsync()
         {
             var response = await _client.From<Models.SystemRegulationHistory>()

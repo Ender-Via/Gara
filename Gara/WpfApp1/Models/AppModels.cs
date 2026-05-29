@@ -309,6 +309,16 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         public int LuotXeTrongNgay { get; set; }
         public int MaxDailyVehicles { get; set; }
     }
+
+    public class QuyDinhDashboardStats
+    {
+        public int HieuXeHienTai { get; set; }
+        public int HieuXeToiDa { get; set; }
+        public decimal LuotXeTrungBinhNgay { get; set; }
+        public int LuotXeToiDaNgay { get; set; }
+        public int DichVuDangNiemYet { get; set; }
+        public int DichVuToiDa { get; set; }
+    }
     
     // DTO cho Tiếp nhận gần đây
     public class RecentReceiptDTO

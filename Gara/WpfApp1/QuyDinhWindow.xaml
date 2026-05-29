@@ -224,20 +224,20 @@
 
                             <StackPanel Grid.Column="0" Margin="0,0,18,0">
                                 <TextBlock Text="Hiệu xe hiện tại" Foreground="#C3C6D7" FontWeight="SemiBold" FontSize="12"/>
-                                <TextBlock Text="08 / 10" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,6,0,10"/>
-                                <ProgressBar Value="80" Maximum="100" Height="6" Background="#3A3D4A" Foreground="#2563EB" BorderThickness="0"/>
+                                <TextBlock x:Name="txtHieuXeHienTai" Text="0 / 0" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,6,0,10"/>
+                                <ProgressBar x:Name="pbHieuXe" Value="0" Maximum="100" Height="6" Background="#3A3D4A" Foreground="#2563EB" BorderThickness="0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Margin="18,0">
                                 <TextBlock Text="Lượt xe trung bình/ngày" Foreground="#C3C6D7" FontWeight="SemiBold" FontSize="12"/>
-                                <TextBlock Text="24 / 30" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,6,0,10"/>
-                                <ProgressBar Value="80" Maximum="100" Height="6" Background="#3A3D4A" Foreground="#BCC7DE" BorderThickness="0"/>
+                                <TextBlock x:Name="txtLuotXeTrungBinh" Text="0 / 0" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,6,0,10"/>
+                                <ProgressBar x:Name="pbLuotXe" Value="0" Maximum="100" Height="6" Background="#3A3D4A" Foreground="#BCC7DE" BorderThickness="0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2" Margin="18,0,0,0">
                                 <TextBlock Text="Dịch vụ đang niêm yết" Foreground="#C3C6D7" FontWeight="SemiBold" FontSize="12"/>
-                                <TextBlock Text="15 / 20" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,6,0,10"/>
-                                <ProgressBar Value="75" Maximum="100" Height="6" Background="#3A3D4A" Foreground="#943700" BorderThickness="0"/>
+                                <TextBlock x:Name="txtDichVuDangNiemYet" Text="0 / 0" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,6,0,10"/>
+                                <ProgressBar x:Name="pbDichVu" Value="0" Maximum="100" Height="6" Background="#3A3D4A" Foreground="#943700" BorderThickness="0"/>
                             </StackPanel>
                         </Grid>
                     </Border>

@@ -22,6 +22,7 @@ namespace WpfApp1
 
         private readonly ObservableCollection<HistoryRow> _history = new();
         private Models.SystemRegulation _currentReg;
+        private QuyDinhDashboardStats _dashboardStats;
 
         public QuyDinhWindow()
         {
@@ -55,6 +56,7 @@ namespace WpfApp1
             txtQd2TienCong.Text = (_currentReg?.MaxLabors ?? _defaultValues["QD2_MAX_LABOR_TYPES"]).ToString();
 
             await ReloadHistoryAsync();
+            await LoadDashboardStatsAsync();
         }
 
         private async Task ReloadHistoryAsync()
@@ -75,6 +77,30 @@ namespace WpfApp1
             }
 
             dgvHistory.ItemsSource = _history;
+        }
+
+        private async Task LoadDashboardStatsAsync()
+        {
+            _dashboardStats = await App.DB.GetQuyDinhDashboardStatsAsync();
+
+            var hieuXeHienTai = _dashboardStats?.HieuXeHienTai ?? 0;
+            var hieuXeToiDa = Math.Max(1, _dashboardStats?.HieuXeToiDa ?? 0);
+            var luotTrungBinh = _dashboardStats?.LuotXeTrungBinhNgay ?? 0m;
+            var luotToiDa = Math.Max(1, _dashboardStats?.LuotXeToiDaNgay ?? 0);
+            var dichVuDangNiemYet = _dashboardStats?.DichVuDangNiemYet ?? 0;
+            var dichVuToiDa = Math.Max(1, _dashboardStats?.DichVuToiDa ?? 0);
+
+            txtHieuXeHienTai.Text = $"{hieuXeHienTai} / {hieuXeToiDa}";
+            pbHieuXe.Maximum = hieuXeToiDa;
+            pbHieuXe.Value = Math.Min(hieuXeHienTai, hieuXeToiDa);
+
+            txtLuotXeTrungBinh.Text = $"{luotTrungBinh:0.#} / {luotToiDa}";
+            pbLuotXe.Maximum = luotToiDa;
+            pbLuotXe.Value = Math.Min((double)luotTrungBinh, luotToiDa);
+
+            txtDichVuDangNiemYet.Text = $"{dichVuDangNiemYet} / {dichVuToiDa}";
+            pbDichVu.Maximum = dichVuToiDa;
+            pbDichVu.Value = Math.Min(dichVuDangNiemYet, dichVuToiDa);
         }
 
         private async void BtnViewAllHistory_Click(object sender, RoutedEventArgs e)
