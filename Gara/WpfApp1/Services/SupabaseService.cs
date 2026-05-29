@@ -1,6 +1,9 @@
 ﻿using Supabase;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Collections.Generic;
 using WpfApp1.Models;
 using WpfApp1.ViewModels;
 using static Postgrest.Constants;
@@ -28,14 +31,93 @@ namespace WpfApp1.Services
             _client = new Supabase.Client(url, key, options);
             await _client.InitializeAsync();
         }
+
+        public async Task<List<RecentReceiptDTO>> GetRecentReceiptsAsync(int limit = 5)
+        {
+            try
+            {
+                var receiptsResponse = await _client.From<ServiceReceipt>()
+                    .Order("reception_date", Ordering.Descending)
+                    .Limit(limit)
+                    .Get();
+
+                var receipts = receiptsResponse.Models?.ToList() ?? new List<ServiceReceipt>();
+                if (!receipts.Any())
+                    return new List<RecentReceiptDTO>();
+
+                var vehicleIds = receipts.Select(r => r.VehicleId).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().ToList();
+                var vehicles = new List<Vehicle>();
+                if (vehicleIds.Any())
+                {
+                    var vehiclesResponse = await _client.From<Vehicle>()
+                        .Filter("id", Operator.In, vehicleIds)
+                        .Get();
+                    vehicles = vehiclesResponse.Models?.ToList() ?? new List<Vehicle>();
+                }
+
+                var customerIds = vehicles.Select(v => v.CustomerId).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().ToList();
+                var brandIds = vehicles.Select(v => v.CarBrandId).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().ToList();
+
+                var customers = new List<Customer>();
+                if (customerIds.Any())
+                {
+                    var customersResponse = await _client.From<Customer>()
+                        .Filter("id", Operator.In, customerIds)
+                        .Get();
+                    customers = customersResponse.Models?.ToList() ?? new List<Customer>();
+                }
+
+                var brands = new List<CarBrand>();
+                if (brandIds.Any())
+                {
+                    var brandsResponse = await _client.From<CarBrand>()
+                        .Filter("id", Operator.In, brandIds)
+                        .Get();
+                    brands = brandsResponse.Models?.ToList() ?? new List<CarBrand>();
+                }
+
+                var vehicleMap = vehicles.ToDictionary(v => v.Id);
+                var customerMap = customers.ToDictionary(c => c.Id);
+                var brandMap = brands.ToDictionary(b => b.Id);
+
+                return receipts.Select(r =>
+                {
+                    vehicleMap.TryGetValue(r.VehicleId ?? string.Empty, out var v);
+                    customerMap.TryGetValue(v?.CustomerId ?? string.Empty, out var c);
+                    brandMap.TryGetValue(v?.CarBrandId ?? string.Empty, out var b);
+
+                    // Force subtract 7 hours from stored UTC instant for display (per request)
+                    var utcInstant = DateTime.SpecifyKind(r.ReceptionDate, DateTimeKind.Utc);
+                    var displayTime = utcInstant.AddHours(0);
+
+                    return new RecentReceiptDTO
+                    {
+                        TenKhach = c?.FullName ?? "Không rõ",
+                        BienSo = v?.LicensePlate ?? "Không rõ",
+                        HieuXe = b?.BrandName ?? string.Empty,
+                        ThoiGian = displayTime.ToString("dd/MM/yyyy HH:mm")
+                    };
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải tiếp nhận gần đây: " + ex.Message);
+                return new List<RecentReceiptDTO>();
+            }
+        }
         public async Task<bool> LuuTiepNhanXeAsync(string tenKhach, string sdt, string diaChi, string bienSo, string tenHieuXe, DateTime ngayTiepNhan)
         {
             try
             {
                 var regulations = await GetRegulationsAsync();
                 var maxDailyVehicles = regulations?.MaxDailyVehicles ?? 30;
-                var startDate = ngayTiepNhan.Date.ToString("yyyy-MM-ddTHH:mm:ssZ");
-                var endDate = ngayTiepNhan.Date.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssZ");
+                // Use local day boundaries converted to UTC when querying the DB
+                var startLocal = ngayTiepNhan.Date; // local midnight
+                // Ensure we treat the local date as Local kind before converting to UTC
+                var startUtc = DateTime.SpecifyKind(startLocal, DateTimeKind.Local).ToUniversalTime();
+                var endUtc = DateTime.SpecifyKind(startLocal.AddDays(1), DateTimeKind.Local).ToUniversalTime();
+                var startDate = startUtc.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                var endDate = endUtc.ToString("yyyy-MM-ddTHH:mm:ssZ");
 
                 var receiptCountResponse = await _client.From<ServiceReceipt>()
                     .Filter("reception_date", Operator.GreaterThanOrEqual, startDate)
@@ -78,9 +160,11 @@ namespace WpfApp1.Services
                 var vehicleResponse = await _client.From<Vehicle>().Insert(newVehicle);
                 var vehicleId = vehicleResponse.Models.First().Id;
                 
+                // Store reception date in UTC to avoid timezone issues when querying by day range
                 var newReceipt = new ServiceReceipt
                 {
-                    ReceptionDate = ngayTiepNhan,
+                    // Treat input as Local then convert to UTC for storage to avoid double-shifts
+                    ReceptionDate = DateTime.SpecifyKind(ngayTiepNhan, DateTimeKind.Local).ToUniversalTime(),
                     VehicleId = vehicleId
                 };
                 await _client.From<ServiceReceipt>().Insert(newReceipt);
@@ -360,7 +444,7 @@ namespace WpfApp1.Services
             return true;
         }
 
-        private static string GetPaymentReceiptDisplayCode(PaymentReceipt payment, int index)
+        public static string GetPaymentReceiptDisplayCode(PaymentReceipt payment, int index)
         {
             const string notePrefix = "Phiếu thu ";
             var note = payment.Note?.Trim();
@@ -372,7 +456,7 @@ namespace WpfApp1.Services
                 return firstSpaceIndex > 0 ? code[..firstSpaceIndex] : code;
             }
 
-            return $"PT{payment.ReceiptDate:ddMMyy}{index + 1:D3}";
+            return $"PT{payment.ReceiptDate:ddMMyy}{(index + 1):D3}";
         }
 
         public async Task<string> GetNextPaymentCodeAsync()
@@ -392,6 +476,7 @@ namespace WpfApp1.Services
             // PT + ddmmyy + STT (3 số)
             return $"PT{DateTime.Now:ddMMyy}{count:D3}";
         }
+        
         public async Task<List<TraCuuXeRow>> TraCuuXeAsync(string bienSoFilter)
         {
             try
@@ -543,5 +628,6 @@ namespace WpfApp1.Services
 
             return stats;
         }
+
     }
 }
