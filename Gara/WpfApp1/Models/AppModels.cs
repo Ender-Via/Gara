@@ -299,4 +299,23 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         public string ChuXe { get; set; }
         public decimal TienNo { get; set; }
     }
+
+    public class TraCuuDashBoardStats
+    {
+        public int TongSoXe { get; set; }
+        public int DangSuaChua { get; set; }
+        public decimal TongNo { get; set; }
+        public decimal HieuSuatSuaChua { get; set; }
+        public int LuotXeTrongNgay { get; set; }
+        public int MaxDailyVehicles { get; set; }
+    }
+    
+    // DTO cho Tiếp nhận gần đây
+    public class RecentReceiptDTO
+    {
+        public string TenKhach { get; set; }
+        public string BienSo { get; set; }
+        public string HieuXe { get; set; }
+        public string ThoiGian { get; set; }
+    }
 }

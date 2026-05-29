@@ -101,17 +101,20 @@
                                 </Grid>
                             </Border>
 
-                            <DataGrid x:Name="dgvChiTiet" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True" 
+                            <DataGrid x:Name="dgvChiTiet" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="True"
                                       CellEditEnding="dgvChiTiet_CellEditEnding" Style="{StaticResource ModernDataGrid}"
                                       BorderThickness="0" Margin="0" MinHeight="250" Padding="10">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Nội dung" Binding="{Binding Content}" Width="2*"/>
-                                    <DataGridComboBoxColumn Header="Vật tư phụ tùng" x:Name="colVatTu" 
-                                                            SelectedValueBinding="{Binding PartId}" 
+                                    <DataGridComboBoxColumn Header="Vật tư phụ tùng" x:Name="colVatTu"
+                                                            SelectedValueBinding="{Binding PartId}"
                                                             DisplayMemberPath="PartName" SelectedValuePath="Id" Width="2*"/>
+                                    <DataGridComboBoxColumn Header="Loại tiền công" x:Name="colTienCong"
+                                                            SelectedValueBinding="{Binding LaborId}"
+                                                            DisplayMemberPath="LaborName" SelectedValuePath="Id" Width="2*"/>
                                     <DataGridTextColumn Header="Số lượng" Binding="{Binding Quantity}" Width="*"/>
                                     <DataGridTextColumn Header="Đơn giá" Binding="{Binding UnitPrice}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Tiền công" Binding="{Binding LaborFee}" Width="*"/>
+                                    <DataGridTextColumn Header="Tiền công" Binding="{Binding LaborFee}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Thành tiền" Binding="{Binding LineTotal}" IsReadOnly="True" Width="*"/>
                                 </DataGrid.Columns>
                             </DataGrid>

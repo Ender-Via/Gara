@@ -28,7 +28,7 @@ namespace WpfApp1
                         QuyDinh = item.RegulationKey,
                         GiaTriCu = string.IsNullOrWhiteSpace(item.OldValue) ? "-" : item.OldValue,
                         GiaTriMoi = item.NewValue,
-                        NguoiThucHien = string.IsNullOrWhiteSpace(item.ChangedBy) ? "Qu?n tr? viên" : item.ChangedBy
+                        NguoiThucHien = string.IsNullOrWhiteSpace(item.ChangedBy) ? "Qu?n tr? viï¿½n" : item.ChangedBy
                     });
                 }
 
@@ -36,7 +36,7 @@ namespace WpfApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không th? t?i l?ch s?: " + ex.Message, "L?i", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Khï¿½ng th? t?i l?ch s?: " + ex.Message, "L?i", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

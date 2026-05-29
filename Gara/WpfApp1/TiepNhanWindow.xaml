@@ -5,56 +5,264 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="Tiếp Nhận Xe Sửa" Height="350" Width="700" WindowStartupLocation="CenterScreen">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        Title="Tiếp Nhận Xe Sửa (BM1)"
+        Height="780"
+        Width="1440"
+        MinHeight="720"
+        MinWidth="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#F4F6FB"
+        FontFamily="Segoe UI">
+    <Grid Background="#F4F6FB">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <TextBlock Text="TIẾP NHẬN XE SỬA" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+        <local:SidebarControl Grid.Column="0"
+                              ActiveItem="BM1"/>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- Main Content Layout -->
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="64"/> <!-- Header -->
+                <RowDefinition Height="*"/> <!-- Body -->
             </Grid.RowDefinitions>
 
-            <!-- Row 0 -->
-            <TextBlock Text="Tên chủ xe:" Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center" FontWeight="SemiBold"/>
-            <TextBox x:Name="txtTenChuXe" Grid.Row="0" Grid.Column="1" Margin="5" Padding="4"/>
+            <!-- Header -->
+            <Border Grid.Row="0" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Background="White">
+                <Grid Margin="32,0">
+                    <TextBlock Text="Quản Lý Gara" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="#111827" 
+                               VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Background="Transparent" BorderThickness="0" Margin="0,0,16,0">
+                            <Path Data="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.36 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.63 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16ZM16 17H8V11C8 8.52 9.51 6.5 12 6.5C14.49 6.5 16 8.52 16 11V17Z" Fill="#4B5563"/>
+                        </Button>
+                        <Button Background="Transparent" BorderThickness="0">
+                            <Path Data="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 6C13.93 6 15.5 7.57 15.5 9.5C15.5 11.43 13.93 13 12 13C10.07 13 8.5 11.43 8.5 9.5C8.5 7.57 10.07 6 12 6ZM12 20C9.64 20 7.5 18.73 6.27 16.82C6.31 14.92 10.1 13.9 12 13.9C13.89 13.9 17.69 14.92 17.73 16.82C16.5 18.73 14.36 20 12 20Z" Fill="#4B5563"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <TextBlock Text="Biển số:" Grid.Row="0" Grid.Column="2" Margin="20,5,5,5" VerticalAlignment="Center" FontWeight="SemiBold"/>
-            <TextBox x:Name="txtBienSo" Grid.Row="0" Grid.Column="3" Margin="5" Padding="4"/>
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <Grid Margin="32">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-            <!-- Row 1 -->
-            <TextBlock Text="Điện thoại:" Grid.Row="1" Grid.Column="0" Margin="5" VerticalAlignment="Center" FontWeight="SemiBold"/>
-            <TextBox x:Name="txtDienThoai" Grid.Row="1" Grid.Column="1" Margin="5" Padding="4"/>
+                    <StackPanel Grid.Row="0" Margin="0,0,0,24">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <Rectangle Width="6" Height="32" Fill="#3772FF" RadiusX="3" RadiusY="3" Margin="0,0,12,0"/>
+                            <TextBlock Text="TIẾP NHẬN XE SỬA" 
+                                       FontSize="28" 
+                                       FontWeight="Bold" 
+                                       Foreground="#111827"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
 
-            <TextBlock Text="Hiệu xe:" Grid.Row="1" Grid.Column="2" Margin="20,5,5,5" VerticalAlignment="Center" FontWeight="SemiBold"/>
-            <ComboBox x:Name="cmbHieuXe" Grid.Row="1" Grid.Column="3" Margin="5" Padding="4"/>
+                        <Border Background="#F3F4F6" 
+                                BorderBrush="#E5E7EB" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="12,10"
+                                HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M11 7H13V9H11V7ZM11 11H13V17H11V11ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" Fill="#4B5563" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock VerticalAlignment="Center" Foreground="#4B5563" FontSize="13">
+                                    <Run Text="Quy định: "/>
+                                    <Run Text="Tối đa " Foreground="#0B57D0" FontWeight="SemiBold"/>
+                                    <Run x:Name="txtQuyDinhToiDa" Text="..." Foreground="#0B57D0" FontWeight="SemiBold"/>
+                                    <Run Text=" xe/ngày" Foreground="#0B57D0" FontWeight="SemiBold"/>
+                                    <Run Text=". Hệ thống hỗ trợ "/>
+                                    <Run x:Name="txtQuyDinhHieuXe" Text="..." Foreground="#0B57D0" FontWeight="SemiBold"/>
+                                    <Run Text=" hiệu xe" Foreground="#0B57D0" FontWeight="SemiBold"/>
+                                    <Run Text="."/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
 
-            <!-- Row 2 -->
-            <TextBlock Text="Địa chỉ:" Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" FontWeight="SemiBold"/>
-            <TextBox x:Name="txtDiaChi" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="5" Padding="4"/>
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="360"/>
+                        </Grid.ColumnDefinitions>
 
-            <!-- Row 3 -->
-            <TextBlock Text="Ngày tiếp nhận:" Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" FontWeight="SemiBold"/>
-            <DatePicker x:Name="dpNgayTiepNhan" Grid.Row="3" Grid.Column="1" Margin="5" Padding="4"/>
+                        <!-- Main Form Area -->
+                        <Border Grid.Column="0" 
+                                Background="White"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="32"
+                                Margin="0,0,24,0"
+                                VerticalAlignment="Top">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="#000000"/>
+                            </Border.Effect>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Row 1 -->
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,24">
+                                    <TextBlock Text="Tên chủ xe" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                                    <TextBox x:Name="txtTenChuXe" Height="44" Padding="12,10" 
+                                             BorderBrush="#D1D5DB" BorderThickness="1" 
+                                             Style="{StaticResource {x:Type TextBox}}"
+                                             VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,24">
+                                    <TextBlock Text="Điện thoại" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                                    <TextBox x:Name="txtDienThoai" Height="44" Padding="12,10" 
+                                             BorderBrush="#D1D5DB" BorderThickness="1" 
+                                             VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- Row 2 -->
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,24">
+                                    <TextBlock Text="Biển số xe" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                                    <TextBox x:Name="txtBienSo" Height="44" Padding="12,10" 
+                                             BorderBrush="#D1D5DB" BorderThickness="1" 
+                                             VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,24">
+                                    <TextBlock Text="Ngày tiếp nhận" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                                    <DatePicker x:Name="dpNgayTiepNhan" Height="44" Padding="8"
+                                                BorderBrush="#D1D5DB" BorderThickness="1" Background="White"/>
+                                </StackPanel>
+
+                                <!-- Row 3 -->
+                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,32">
+                                    <TextBlock Text="Hiệu xe" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                                    <ComboBox x:Name="cmbHieuXe" Height="44" Padding="12,10"
+                                              BorderBrush="#D1D5DB" BorderThickness="1" Background="White"
+                                              VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,32">
+                                    <TextBlock Text="Địa chỉ" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                                    <TextBox x:Name="txtDiaChi" Height="44" Padding="12,10" 
+                                             BorderBrush="#D1D5DB" BorderThickness="1" 
+                                             VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <Separator Grid.Row="3" Grid.ColumnSpan="3" Background="#E5E7EB" Margin="0,0,0,24"/>
+
+                                <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,40,0,0">
+                                    <Button x:Name="btnDong" Content="Hủy bỏ" Width="100" Height="44" Margin="0,0,16,0" Click="btnDong_Click"
+                                            Background="White" BorderBrush="#D1D5DB" BorderThickness="1" Foreground="#374151" FontWeight="SemiBold"/>
+                                    <Button x:Name="btnLuu" Content="🖫 Lưu tiếp nhận" Width="140" Height="44" Click="btnLuu_Click"
+                                            Background="#0B57D0" BorderThickness="0" Foreground="White" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Right Sidebar Area -->
+                        <StackPanel Grid.Column="1">
+                            <!-- Status Widget -->
+                            <Border Background="White"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="24"
+                                    Margin="0,0,0,24">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="#000000"/>
+                                </Border.Effect>
+
+                                <StackPanel>
+                                    <TextBlock Text="TRẠNG THÁI TRONG NGÀY" FontSize="12" FontWeight="Bold" Foreground="#4B5563" Margin="0,0,0,16"/>
+
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,8">
+                                        <TextBlock x:Name="txtLuotXeHienTai" Text="-" FontSize="36" FontWeight="Bold" Foreground="#0B57D0" Margin="0,0,4,-4"/>
+                                        <TextBlock x:Name="txtLuotXeToiDa" Text="/ - xe" FontSize="14" Foreground="#6B7280" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+
+                                        <!-- spacer -->
+                                        <Grid Width="70" />
+
+                                        <TextBlock x:Name="txtPhanTramCongSuat" Text="-% công suất" FontSize="12" FontWeight="SemiBold" Foreground="#B91C1C" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                    </StackPanel>
+
+                                    <Border Height="8" CornerRadius="4" Background="#E5E7EB" Margin="0,0,0,20">
+                                        <Border x:Name="rectProgressBar" Width="0" HorizontalAlignment="Left" CornerRadius="4" Background="#3B82F6"/>
+                                    </Border>
+
+                                    <TextBlock TextWrapping="Wrap" Foreground="#4B5563" FontSize="13" LineHeight="20">
+                                        <Run x:Name="txtTrangThaiVanHanh" Text="Gara đang ở mức vận hành... Bạn có thể tiếp nhận thêm tối đa"/>
+                                        <Run x:Name="txtXeConLai" Text=" - xe " FontWeight="Bold" Foreground="#111827"/>
+                                        <Run Text="trong ngày hôm nay."/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Image Widget (placeholder styling) -->
+                            <Border Background="#1f2937" 
+                                    CornerRadius="8" 
+                                    Height="220" 
+                                    Margin="0,0,0,24"
+                                    ClipToBounds="True">
+                                <!-- Ideally you would have an Image here, we will just simulate it -->
+                                <Grid>
+                                    <Grid.Background>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Color="#00111827" Offset="0"/>
+                                            <GradientStop Color="#CC111827" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Grid.Background>
+                                    <StackPanel VerticalAlignment="Bottom" Margin="20">
+                                        <TextBlock Text="Quy trình chuyên nghiệp," FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Dịch vụ tận tâm" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
+                                        <TextBlock Text="Đảm bảo độ chính xác cho từng hồ sơ" FontSize="12" Foreground="#D1D5DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Recent Widget -->
+                            <Border Background="White"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="24">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="#000000"/>
+                                </Border.Effect>
+
+                                <StackPanel>
+                                    <TextBlock Text="TIẾP NHẬN GẦN ĐÂY" FontSize="12" FontWeight="Bold" Foreground="#4B5563" Margin="0,0,0,16"/>
+
+                                    <StackPanel x:Name="pnlRecentEntries">
+                                    <!-- Dynamic content will be loaded here -->
+                                    </StackPanel>
+                                    
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
         </Grid>
-
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-            <Button x:Name="btnLuu" Content="Lưu" Width="100" Height="35" Margin="10" Click="btnLuu_Click"/>
-            <Button x:Name="btnDong" Content="Đóng" Width="100" Height="35" Margin="10" Click="btnDong_Click"/>
-        </StackPanel>
     </Grid>
 </Window>

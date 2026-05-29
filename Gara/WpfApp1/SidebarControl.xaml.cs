@@ -1,50 +1,81 @@
-﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace WpfApp1
 {
     public partial class SidebarControl : UserControl
     {
-        public static readonly DependencyProperty ActiveMenuProperty =
-            DependencyProperty.Register("ActiveMenu", typeof(string), typeof(SidebarControl),
-                new PropertyMetadata("", OnActiveMenuChanged));
-
-        public string ActiveMenu
-        {
-            get => (string)GetValue(ActiveMenuProperty);
-            set => SetValue(ActiveMenuProperty, value);
-        }
-
-        private static void OnActiveMenuChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var sidebar = (SidebarControl)d;
-            sidebar.UpdateActiveMenu((string)e.NewValue);
-        }
-
-        private void UpdateActiveMenu(string activeContent)
-        {
-            foreach (var rb in FindVisualChildren<RadioButton>(this))
-            {
-                rb.IsChecked = rb.Content?.ToString() == activeContent;
-            }
-        }
-
-        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
-        {
-            if (depObj == null) yield break;
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
-            {
-                var child = VisualTreeHelper.GetChild(depObj, i);
-                if (child is T t) yield return t;
-                foreach (var c in FindVisualChildren<T>(child)) yield return c;
-            }
-        }
+        public static readonly DependencyProperty ActiveItemProperty =
+            DependencyProperty.Register(
+                nameof(ActiveItem),
+                typeof(string),
+                typeof(SidebarControl),
+                new PropertyMetadata(string.Empty, OnActiveItemChanged));
 
         public SidebarControl()
         {
             InitializeComponent();
+            Loaded += (_, _) => UpdateActiveItem();
+        }
+
+        public string ActiveItem
+        {
+            get => (string)GetValue(ActiveItemProperty);
+            set => SetValue(ActiveItemProperty, value);
+        }
+
+        private static void OnActiveItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is SidebarControl sidebar)
+                sidebar.UpdateActiveItem();
+        }
+
+        private void UpdateActiveItem()
+        {
+            Bm1Button.IsChecked = ActiveItem == "BM1";
+            Bm2Button.IsChecked = ActiveItem == "BM2";
+            Bm3Button.IsChecked = ActiveItem == "BM3";
+            Bm4Button.IsChecked = ActiveItem == "BM4";
+            Bm5Button.IsChecked = ActiveItem == "BM5";
+            Qd6Button.IsChecked = ActiveItem == "QD6";
+        }
+
+        private void NavigationButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not RadioButton button || button.CommandParameter is not string targetKey)
+                return;
+
+            if (targetKey == ActiveItem)
+            {
+                UpdateActiveItem();
+                return;
+            }
+
+            var currentWindow = Window.GetWindow(this);
+            var targetWindow = CreateWindow(targetKey);
+            if (targetWindow == null)
+            {
+                UpdateActiveItem();
+                return;
+            }
+
+            targetWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            targetWindow.Show();
+            currentWindow?.Close();
+        }
+
+        private static Window? CreateWindow(string targetKey)
+        {
+            return targetKey switch
+            {
+                "BM1" => new TiepNhanWindow(),
+                "BM2" => new PhieuSuaChuaWindow(),
+                "BM3" => new TraCuuWindow(),
+                "BM4" => new PhieuThuWindow(),
+                "BM5" => new BaoCaoWindow(),
+                "QD6" => new QuyDinhWindow(),
+                _ => null
+            };
         }
     }
 }
