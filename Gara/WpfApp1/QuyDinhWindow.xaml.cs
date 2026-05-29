@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,16 +12,16 @@ namespace WpfApp1
 {
     public partial class QuyDinhWindow : Window
     {
-        private readonly Dictionary<string, string> _defaultValues = new()
+        private readonly Dictionary<string, int> _defaultValues = new()
         {
-            { "QD1_MAX_BRANDS", "10" },
-            { "QD1_MAX_CARS_PER_DAY", "30" },
-            { "QD2_MAX_PART_TYPES", "100" },
-            { "QD2_MAX_LABOR_TYPES", "20" }
+            { "QD1_MAX_BRANDS",      10  },
+            { "QD1_MAX_CARS_PER_DAY", 30 },
+            { "QD2_MAX_PART_TYPES",  100 },
+            { "QD2_MAX_LABOR_TYPES",  20 }
         };
 
-        private readonly Dictionary<string, string> _currentValues = new();
         private readonly ObservableCollection<HistoryRow> _history = new();
+        private Models.SystemRegulation _currentReg;
 
         public QuyDinhWindow()
         {
@@ -36,47 +37,31 @@ namespace WpfApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không thể tải dữ liệu quy định: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Không thể tải dữ liệu quy định: " + ex.Message,
+                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void WireButtons()
-        {
-            foreach (var button in FindVisualChildren<Button>(this))
-            {
-                var text = button.Content?.ToString()?.Trim();
-                if (text == "Đặt lại mặc định") button.Click += BtnResetDefault_Click;
-                if (text == "Cập nhật quy định") button.Click += BtnUpdate_Click;
-            }
-        }
-
-        private async System.Threading.Tasks.Task LoadDataAsync()
+        private async Task LoadDataAsync()
         {
             if (App.DB == null)
-            {
                 throw new InvalidOperationException("Chưa khởi tạo kết nối Supabase.");
-            }
 
-            var regs = await App.DB.GetSystemRegulationsAsync();
-            _currentValues.Clear();
-            foreach (var reg in regs)
-            {
-                if (!string.IsNullOrWhiteSpace(reg.RegulationKey))
-                    _currentValues[reg.RegulationKey] = reg.RegulationValue ?? string.Empty;
-            }
+            _currentReg = await App.DB.GetSystemRegulationsAsync();
 
-            txtQd1HieuXe.Text = GetRegValue("QD1_MAX_BRANDS");
-            txtQd1SoXe.Text = GetRegValue("QD1_MAX_CARS_PER_DAY");
-            txtQd2VatTu.Text = GetRegValue("QD2_MAX_PART_TYPES");
-            txtQd2TienCong.Text = GetRegValue("QD2_MAX_LABOR_TYPES");
+            txtQd1HieuXe.Text = (_currentReg?.MaxCarBrands ?? _defaultValues["QD1_MAX_BRANDS"]).ToString();
+            txtQd1SoXe.Text = (_currentReg?.MaxDailyVehicles ?? _defaultValues["QD1_MAX_CARS_PER_DAY"]).ToString();
+            txtQd2VatTu.Text = (_currentReg?.MaxParts ?? _defaultValues["QD2_MAX_PART_TYPES"]).ToString();
+            txtQd2TienCong.Text = (_currentReg?.MaxLabors ?? _defaultValues["QD2_MAX_LABOR_TYPES"]).ToString();
 
             await ReloadHistoryAsync();
         }
 
-        private async System.Threading.Tasks.Task ReloadHistoryAsync()
+        private async Task ReloadHistoryAsync()
         {
             var history = await App.DB.GetSystemRegulationHistoryAsync();
             _history.Clear();
+
             foreach (var item in history.OrderByDescending(x => x.ChangedAt))
             {
                 _history.Add(new HistoryRow
@@ -107,22 +92,17 @@ namespace WpfApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không thể tải lịch sử quy định: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Không thể tải lịch sử quy định: " + ex.Message,
+                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private string GetRegValue(string key)
-        {
-            return _currentValues.TryGetValue(key, out var value) ? value : _defaultValues[key];
         }
 
         private async void BtnResetDefault_Click(object sender, RoutedEventArgs e)
         {
-            txtQd1HieuXe.Text = _defaultValues["QD1_MAX_BRANDS"];
-            txtQd1SoXe.Text = _defaultValues["QD1_MAX_CARS_PER_DAY"];
-            txtQd2VatTu.Text = _defaultValues["QD2_MAX_PART_TYPES"];
-            txtQd2TienCong.Text = _defaultValues["QD2_MAX_LABOR_TYPES"];
-            await ReloadHistoryAsync();
+            txtQd1HieuXe.Text = _defaultValues["QD1_MAX_BRANDS"].ToString();
+            txtQd1SoXe.Text = _defaultValues["QD1_MAX_CARS_PER_DAY"].ToString();
+            txtQd2VatTu.Text = _defaultValues["QD2_MAX_PART_TYPES"].ToString();
+            txtQd2TienCong.Text = _defaultValues["QD2_MAX_LABOR_TYPES"].ToString();
         }
 
         private async void BtnUpdate_Click(object sender, RoutedEventArgs e)
@@ -132,17 +112,25 @@ namespace WpfApp1
                 !TryGetPositiveInt(txtQd2VatTu.Text, out var qd2Parts) ||
                 !TryGetPositiveInt(txtQd2TienCong.Text, out var qd2Labors))
             {
-                MessageBox.Show("Vui lòng nhập toàn bộ giá trị là số nguyên dương.", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Vui lòng nhập toàn bộ giá trị là số nguyên dương.",
+                                "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            await App.DB.UpsertSystemRegulationAsync("QD1_MAX_BRANDS", qd1Brands.ToString(), "Số lượng hiệu xe tối đa");
-            await App.DB.UpsertSystemRegulationAsync("QD1_MAX_CARS_PER_DAY", qd1Cars.ToString(), "Số xe sửa chữa tối đa trong ngày");
-            await App.DB.UpsertSystemRegulationAsync("QD2_MAX_PART_TYPES", qd2Parts.ToString(), "Số loại vật tư phụ tùng tối đa");
-            await App.DB.UpsertSystemRegulationAsync("QD2_MAX_LABOR_TYPES", qd2Labors.ToString(), "Số loại tiền công tối đa");
+            try
+            {
+                await App.DB.UpsertSystemRegulationAsync(
+                    qd1Brands, qd1Cars, qd2Parts, qd2Labors, _currentReg);
 
-            await LoadDataAsync();
-            MessageBox.Show("Cập nhật quy định thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                await LoadDataAsync();
+                MessageBox.Show("Cập nhật quy định thành công!", "Thông báo",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi cập nhật: " + ex.Message,
+                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private bool TryGetPositiveInt(string value, out int result)
@@ -157,8 +145,7 @@ namespace WpfApp1
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
             {
                 var child = VisualTreeHelper.GetChild(depObj, i);
-                if (child is T t)
-                    yield return t;
+                if (child is T t) yield return t;
 
                 foreach (var childOfChild in FindVisualChildren<T>(child))
                     yield return childOfChild;

@@ -273,12 +273,14 @@ namespace WpfApp1.Services
 
         //Quy định Window
 
-        public async Task<List<Models.SystemRegulation>> GetSystemRegulationsAsync()
+        // Lấy quy định (luôn chỉ có 1 row)
+        public async Task<Models.SystemRegulation> GetSystemRegulationsAsync()
         {
             var response = await _client.From<Models.SystemRegulation>().Get();
-            return response.Models ?? new List<Models.SystemRegulation>();
+            return response.Models.FirstOrDefault();
         }
 
+        // Lấy lịch sử — giữ nguyên
         public async Task<List<Models.SystemRegulationHistory>> GetSystemRegulationHistoryAsync()
         {
             var response = await _client.From<Models.SystemRegulationHistory>()
@@ -287,34 +289,40 @@ namespace WpfApp1.Services
             return response.Models ?? new List<Models.SystemRegulationHistory>();
         }
 
-        public async Task UpsertSystemRegulationAsync(string key, string value, string description)
+        // Upsert toàn bộ row một lần
+        public async Task UpsertSystemRegulationAsync(
+            int maxBrands, int maxVehicles, int maxParts, int maxLabors,
+            SystemRegulation oldReg)
         {
-            // Lấy giá trị cũ để ghi history
-            var existing = await _client.From<Models.SystemRegulation>()
-                .Filter("regulation_key", Postgrest.Constants.Operator.Equals, key)
-                .Get();
-
-            string oldValue = existing.Models.FirstOrDefault()?.RegulationValue ?? "";
-
-            // Upsert vào system_regulations
             var reg = new Models.SystemRegulation
             {
-                Id = existing.Models.FirstOrDefault()?.Id ?? Guid.NewGuid().ToString(), // ← thêm dòng này
-                RegulationKey = key,
-                RegulationValue = value,
-                Description = description
+                Id = oldReg?.Id ?? Guid.NewGuid().ToString(),
+                MaxCarBrands = maxBrands,
+                MaxDailyVehicles = maxVehicles,
+                MaxParts = maxParts,
+                MaxLabors = maxLabors
             };
-            await _client.From<Models.SystemRegulation>()
-                .Upsert(reg, new Postgrest.QueryOptions { OnConflict = "regulation_key" });
 
-            // Chỉ ghi history nếu giá trị thay đổi
-            if (oldValue != value)
+            await _client.From<Models.SystemRegulation>()
+                .Upsert(reg, new Postgrest.QueryOptions { OnConflict = "id" });
+
+            // Ghi history cho từng field thay đổi
+            var changes = new[]
             {
+        ("QD1_MAX_BRANDS",      oldReg?.MaxCarBrands.ToString(),     maxBrands.ToString()),
+        ("QD1_MAX_CARS_PER_DAY",oldReg?.MaxDailyVehicles.ToString(), maxVehicles.ToString()),
+        ("QD2_MAX_PART_TYPES",  oldReg?.MaxParts.ToString(),         maxParts.ToString()),
+        ("QD2_MAX_LABOR_TYPES", oldReg?.MaxLabors.ToString(),        maxLabors.ToString()),
+    };
+
+            foreach (var (key, oldVal, newVal) in changes)
+            {
+                if (oldVal == newVal) continue;
                 var history = new Models.SystemRegulationHistory
                 {
                     RegulationKey = key,
-                    OldValue = oldValue,
-                    NewValue = value,
+                    OldValue = oldVal ?? "0",
+                    NewValue = newVal,
                     ChangedBy = "Quản trị viên",
                     ChangedAt = DateTime.UtcNow
                 };
