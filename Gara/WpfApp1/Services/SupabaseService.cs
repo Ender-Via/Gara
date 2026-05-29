@@ -42,7 +42,7 @@ namespace WpfApp1.Services
                     return false;
                 }
 
-                
+
                 var newCustomer = new Customer
                 {
                     FullName = tenKhach,
@@ -52,7 +52,7 @@ namespace WpfApp1.Services
                 var customerResponse = await _client.From<Customer>().Insert(newCustomer);
                 var customerId = customerResponse.Models.First().Id;
 
-               
+
                 var newVehicle = new Vehicle
                 {
                     LicensePlate = bienSo,
@@ -61,7 +61,7 @@ namespace WpfApp1.Services
                 };
                 var vehicleResponse = await _client.From<Vehicle>().Insert(newVehicle);
                 var vehicleId = vehicleResponse.Models.First().Id;
-                
+
                 var newReceipt = new ServiceReceipt
                 {
                     ReceptionDate = ngayTiepNhan,
@@ -69,7 +69,7 @@ namespace WpfApp1.Services
                 };
                 await _client.From<ServiceReceipt>().Insert(newReceipt);
 
-                return true; 
+                return true;
             }
             catch (Exception ex)
             {
@@ -113,12 +113,12 @@ namespace WpfApp1.Services
 
             await _client.From<RepairOrderDetail>().Insert(danhSachThucTe);
 
-            return true; 
+            return true;
         }
 
         public async Task<(Vehicle vehicle, decimal currentDebt)> GetVehicleDebtAsync(string licensePlate)
         {
-            
+
             var vehicleResponse = await _client.From<Vehicle>()
                 .Filter("license_plate", Operator.Equals, licensePlate)
                 .Get();
@@ -126,7 +126,7 @@ namespace WpfApp1.Services
             var vehicle = vehicleResponse.Models.FirstOrDefault();
             if (vehicle == null) return (null, 0);
 
-           
+
             var receiptsResponse = await _client.From<ServiceReceipt>()
                 .Filter("vehicle_id", Operator.Equals, vehicle.Id)
                 .Get();
@@ -134,7 +134,7 @@ namespace WpfApp1.Services
 
             if (!receiptIds.Any()) return (vehicle, 0);
 
-            
+
             var ordersResponse = await _client.From<RepairOrder>()
                 .Filter("service_receipt_id", Operator.In, receiptIds)
                 .Get();
@@ -143,7 +143,7 @@ namespace WpfApp1.Services
 
             decimal totalInvoiced = orders.Sum(o => o.TotalAmount ?? 0);
 
-            
+
             decimal totalPaid = 0;
             if (orderIds.Any())
             {
@@ -156,7 +156,7 @@ namespace WpfApp1.Services
             return (vehicle, totalInvoiced - totalPaid);
         }
 
-       
+
         public async Task<bool> LuuPhieuThuAsync(string repairOrderId, decimal soTienThu, DateTime ngayThu, string ghiChu)
         {
             var newPayment = new PaymentReceipt
@@ -268,38 +268,58 @@ namespace WpfApp1.Services
                 return new List<TraCuuXeRow>();
             }
         }
-            
+
         //Quy định Window
 
-        public class SystemRegulation
+        //Quy định Window
+
+        public async Task<List<Models.SystemRegulation>> GetSystemRegulationsAsync()
         {
-            public string RegulationKey { get; set; } = "";
-            public string RegulationValue { get; set; } = "";
-            public string Description { get; set; } = "";
+            var response = await _client.From<Models.SystemRegulation>().Get();
+            return response.Models ?? new List<Models.SystemRegulation>();
         }
 
-        public class SystemRegulationHistory
+        public async Task<List<Models.SystemRegulationHistory>> GetSystemRegulationHistoryAsync()
         {
-            public DateTime ChangedAt { get; set; }
-            public string RegulationKey { get; set; } = "";
-            public string OldValue { get; set; } = "";
-            public string NewValue { get; set; } = "";
-            public string ChangedBy { get; set; } = "";
-        }
-
-        public async Task<List<SystemRegulation>> GetSystemRegulationsAsync()
-        {
-            return await Task.FromResult(new List<SystemRegulation>());
-        }
-
-        public async Task<List<SystemRegulationHistory>> GetSystemRegulationHistoryAsync()
-        {
-            return await Task.FromResult(new List<SystemRegulationHistory>());
+            var response = await _client.From<Models.SystemRegulationHistory>()
+                .Order("changed_at", Postgrest.Constants.Ordering.Descending)
+                .Get();
+            return response.Models ?? new List<Models.SystemRegulationHistory>();
         }
 
         public async Task UpsertSystemRegulationAsync(string key, string value, string description)
         {
-            await Task.CompletedTask;
+            // Lấy giá trị cũ để ghi history
+            var existing = await _client.From<Models.SystemRegulation>()
+                .Filter("regulation_key", Postgrest.Constants.Operator.Equals, key)
+                .Get();
+
+            string oldValue = existing.Models.FirstOrDefault()?.RegulationValue ?? "";
+
+            // Upsert vào system_regulations
+            var reg = new Models.SystemRegulation
+            {
+                Id = existing.Models.FirstOrDefault()?.Id ?? Guid.NewGuid().ToString(), // ← thêm dòng này
+                RegulationKey = key,
+                RegulationValue = value,
+                Description = description
+            };
+            await _client.From<Models.SystemRegulation>()
+                .Upsert(reg, new Postgrest.QueryOptions { OnConflict = "regulation_key" });
+
+            // Chỉ ghi history nếu giá trị thay đổi
+            if (oldValue != value)
+            {
+                var history = new Models.SystemRegulationHistory
+                {
+                    RegulationKey = key,
+                    OldValue = oldValue,
+                    NewValue = value,
+                    ChangedBy = "Quản trị viên",
+                    ChangedAt = DateTime.UtcNow
+                };
+                await _client.From<Models.SystemRegulationHistory>().Insert(history);
+            }
         }
     }
 }

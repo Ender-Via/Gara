@@ -32,7 +32,7 @@
             <RadioButton Content="Phiếu Sửa Chữa (BM2)" Style="{StaticResource NavMenuButton}" Tag="WrenchOutline"/>
             <RadioButton Content="Tra Cứu Xe (BM3)" Style="{StaticResource NavMenuButton}" Tag="Magnify"/>
             <RadioButton Content="Phiếu Thu Tiền (BM4)" Style="{StaticResource NavMenuButton}" Tag="Cash"/>
-            <RadioButton Content="Báo Cáo Tháng (BM5)" Style="{StaticResource NavMenuButton}" Tag="ChartBar" IsChecked="True"/>
+            <RadioButton Content="Báo Cáo Tháng (BM5)" Style="{StaticResource NavMenuButton}" Tag="ChartBar"/>
             <RadioButton Content="Thay Đổi Quy Định (QĐ6)" Style="{StaticResource NavMenuButton}" Tag="CogOutline"/>
         </StackPanel>
 

@@ -137,8 +137,8 @@
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                <Button Content="Đặt lại mặc định" Style="{StaticResource GhostButton}" Margin="0,0,12,0"/>
-                                <Button Content="Cập nhật quy định" Style="{StaticResource PrimaryButton}"/>
+                                <Button Content="Đặt lại mặc định" Style="{StaticResource GhostButton}" Margin="0,0,12,0" Click="BtnResetDefault_Click"/>
+                                <Button Content="Cập nhật quy định" Style="{StaticResource PrimaryButton}" Click="BtnUpdate_Click"/>
                             </StackPanel>
                         </Grid>
                     </Border>

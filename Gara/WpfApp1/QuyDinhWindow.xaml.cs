@@ -26,7 +26,6 @@ namespace WpfApp1
         {
             InitializeComponent();
             Loaded += QuyDinhWindow_Loaded;
-            WireButtons();
         }
 
         private async void QuyDinhWindow_Loaded(object sender, RoutedEventArgs e)

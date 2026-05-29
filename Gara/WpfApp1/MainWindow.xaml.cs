@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -53,7 +53,7 @@ namespace WpfApp1
 
         private void BtnQuyDinh_Click(object sender, RoutedEventArgs e)
         {
-            var window = new QuyDinhWindow();
+            QuyDinhWindow window = new QuyDinhWindow();
             window.ShowDialog();
         }
     }
