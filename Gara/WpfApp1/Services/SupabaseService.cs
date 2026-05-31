@@ -12,22 +12,18 @@ namespace WpfApp1.Services
 {
     public class SupabaseService
     {
-        // Biến này để lưu giữ kết nối, dùng đi dùng lại
         public Supabase.Client _client;
 
         public async Task InitializeAsync()
         {
             var url = "https://klsafpqatqpohiqykoud.supabase.co";
-
             var key = "sb_publishable_3F5w0GD2L9c_sNGD3wfpvQ_ZCGOLM-1";
 
-            // Cấu hình kết nối
             var options = new SupabaseOptions
             {
                 AutoConnectRealtime = true
             };
 
-            // Khởi tạo kết nối
             _client = new Supabase.Client(url, key, options);
             await _client.InitializeAsync();
         }
@@ -86,7 +82,6 @@ namespace WpfApp1.Services
                     customerMap.TryGetValue(v?.CustomerId ?? string.Empty, out var c);
                     brandMap.TryGetValue(v?.CarBrandId ?? string.Empty, out var b);
 
-                    // Force subtract 7 hours from stored UTC instant for display (per request)
                     var utcInstant = DateTime.SpecifyKind(r.ReceptionDate, DateTimeKind.Utc);
                     var displayTime = utcInstant.AddHours(0);
 
@@ -105,15 +100,15 @@ namespace WpfApp1.Services
                 return new List<RecentReceiptDTO>();
             }
         }
+
         public async Task<bool> LuuTiepNhanXeAsync(string tenKhach, string sdt, string diaChi, string bienSo, string tenHieuXe, DateTime ngayTiepNhan)
         {
             try
             {
                 var regulations = await GetRegulationsAsync();
                 var maxDailyVehicles = regulations?.MaxDailyVehicles ?? 30;
-                // Use local day boundaries converted to UTC when querying the DB
-                var startLocal = ngayTiepNhan.Date; // local midnight
-                // Ensure we treat the local date as Local kind before converting to UTC
+
+                var startLocal = ngayTiepNhan.Date;
                 var startUtc = DateTime.SpecifyKind(startLocal, DateTimeKind.Local).ToUniversalTime();
                 var endUtc = DateTime.SpecifyKind(startLocal.AddDays(1), DateTimeKind.Local).ToUniversalTime();
                 var startDate = startUtc.ToString("yyyy-MM-ddTHH:mm:ssZ");
@@ -131,8 +126,8 @@ namespace WpfApp1.Services
                 }
 
                 var brandResponse = await _client.From<CarBrand>()
-                                                 .Filter("brand_name", Postgrest.Constants.Operator.Equals, tenHieuXe)
-                                                 .Get();
+                    .Filter("brand_name", Postgrest.Constants.Operator.Equals, tenHieuXe)
+                    .Get();
                 var brand = brandResponse.Models.FirstOrDefault();
 
                 if (brand == null)
@@ -150,7 +145,6 @@ namespace WpfApp1.Services
                 var customerResponse = await _client.From<Customer>().Insert(newCustomer);
                 var customerId = customerResponse.Models.First().Id;
 
-               
                 var newVehicle = new Vehicle
                 {
                     LicensePlate = bienSo,
@@ -159,17 +153,16 @@ namespace WpfApp1.Services
                 };
                 var vehicleResponse = await _client.From<Vehicle>().Insert(newVehicle);
                 var vehicleId = vehicleResponse.Models.First().Id;
-                
+
                 // Store reception date in UTC to avoid timezone issues when querying by day range
                 var newReceipt = new ServiceReceipt
                 {
-                    // Treat input as Local then convert to UTC for storage to avoid double-shifts
                     ReceptionDate = DateTime.SpecifyKind(ngayTiepNhan, DateTimeKind.Local).ToUniversalTime(),
                     VehicleId = vehicleId
                 };
                 await _client.From<ServiceReceipt>().Insert(newReceipt);
 
-                return true; 
+                return true;
             }
             catch (Exception ex)
             {
@@ -180,9 +173,7 @@ namespace WpfApp1.Services
 
         public async Task<SystemRegulation> GetRegulationsAsync()
         {
-            var response = await _client.From<SystemRegulation>()
-                .Get();
-
+            var response = await _client.From<SystemRegulation>().Get();
             return response.Models.FirstOrDefault();
         }
 
@@ -214,25 +205,18 @@ namespace WpfApp1.Services
 
         public async Task<bool> LuuPhieuSuaChuaAsync(DateTime ngaySuaChua, IEnumerable<RepairOrderDetail> danhSachChiTiet)
         {
-
             var danhSachThucTe = danhSachChiTiet.Where(x => !string.IsNullOrEmpty(x.Content) || x.PartId != null).ToList();
 
             if (!danhSachThucTe.Any())
-            {
                 throw new Exception("Bảng chi tiết đang trống!");
-            }
-
 
             decimal tongTien = danhSachThucTe.Sum(x => x.LineTotal ?? 0);
 
-
             var newOrder = new RepairOrder
             {
-
                 RepairDate = ngaySuaChua,
                 TotalAmount = tongTien
             };
-
 
             var orderResponse = await _client.From<RepairOrder>().Insert(newOrder);
             var insertedOrder = orderResponse.Models.FirstOrDefault();
@@ -247,7 +231,7 @@ namespace WpfApp1.Services
 
             await _client.From<RepairOrderDetail>().Insert(danhSachThucTe);
 
-            return true; 
+            return true;
         }
 
         public async Task<PaymentDebtSummary> GetVehiclePaymentSummaryAsync(string licensePlate)
@@ -402,7 +386,6 @@ namespace WpfApp1.Services
             }).ToList();
         }
 
-       
         public async Task<PaymentReceipt> CreatePaymentReceiptAsync(string licensePlate, decimal soTienThu, DateTime ngayThu, string ghiChu)
         {
             if (soTienThu <= 0)
@@ -472,25 +455,22 @@ namespace WpfApp1.Services
                 .Get();
 
             int count = (response.Models?.Count ?? 0) + 1;
-
-            // PT + ddmmyy + STT (3 số)
             return $"PT{DateTime.Now:ddMMyy}{count:D3}";
         }
-        
+
         public async Task<List<TraCuuXeRow>> TraCuuXeAsync(string bienSoFilter)
         {
             try
             {
                 var vehicleResponse = string.IsNullOrWhiteSpace(bienSoFilter)
-                ? await _client.From<Vehicle>().Get()
-                : await _client.From<Vehicle>()
-                .Filter("license_plate", Operator.ILike, $"%{bienSoFilter}%")
-                .Get();
+                    ? await _client.From<Vehicle>().Get()
+                    : await _client.From<Vehicle>()
+                        .Filter("license_plate", Operator.ILike, $"%{bienSoFilter}%")
+                        .Get();
                 var vehicles = vehicleResponse.Models?.ToList() ?? new List<Vehicle>();
                 if (!vehicles.Any())
                     return new List<TraCuuXeRow>();
 
-                // Lấy khách hàng & hãng xe
                 var customerIds = vehicles.Select(v => v.CustomerId).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
                 var brandIds = vehicles.Select(v => v.CarBrandId).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
 
@@ -504,7 +484,6 @@ namespace WpfApp1.Services
                 var customerMap = customersResponse.Models?.ToDictionary(x => x.Id) ?? new Dictionary<string, Customer>();
                 var brandMap = brandsResponse.Models?.ToDictionary(x => x.Id) ?? new Dictionary<string, CarBrand>();
 
-                // Lấy phiếu tiếp nhận -> lệnh sửa -> phiếu thu để tính nợ
                 var vehicleIds = vehicles.Select(v => v.Id).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
                 var receiptsResponse = await _client.From<ServiceReceipt>()
                     .Filter("vehicle_id", Operator.In, vehicleIds)
@@ -564,42 +543,27 @@ namespace WpfApp1.Services
 
             try
             {
-                // Tổng số xe
                 var vehiclesResponse = await _client.From<Vehicle>().Get();
                 var vehicles = vehiclesResponse.Models?.ToList() ?? new List<Vehicle>();
                 stats.TongSoXe = vehicles.Count;
 
-                // Các thông tin tính nợ, đang sửa, ... 
                 var receiptsResponse = await _client.From<ServiceReceipt>().Get();
                 var receipts = receiptsResponse.Models?.ToList() ?? new List<ServiceReceipt>();
-                
+
                 var ordersResponse = await _client.From<RepairOrder>().Get();
                 var orders = ordersResponse.Models?.ToList() ?? new List<RepairOrder>();
-                
+
                 var paymentsResponse = await _client.From<PaymentReceipt>().Get();
                 var payments = paymentsResponse.Models?.ToList() ?? new List<PaymentReceipt>();
 
-                // Tính xe đang sửa: xe đã có phiếu tiếp nhận nhưng chưa trả đủ phiếu thu (hoặc không có phiếu thu)
-                var paidRepairOrders = payments.Select(p => p.RepairOrderId).Distinct().ToList();
-                // "Đang sửa chữa" ở đây giả định: đã tiếp nhận nhưng chưa có phiếu sửa hoặc có phiếu sửa mà chưa thanh toán
-                // Giả sử xe đang sửa là xe có ServiceReceipt nhưng chưa hoàn thành Payment.
-                int completedRepairs = 0;
-                
-                // Tính toán sơ bộ: 
-                // Có order -> Hoàn thành việc sửa chữa
-                // Chưa có order -> Đang sửa chữa (hoặc đang kiểm tra)
-                // Các rule này có thể custom theo nghiệp vụ
                 var receiptWithOrders = orders.Select(o => o.ServiceReceiptId).Distinct().ToList();
-                stats.DangSuaChua = receipts.Count(r => !receiptWithOrders.Contains(r.Id)); 
-                // Cập nhật dang sửa chữa (có thể là những xe chưa thu đủ tiền v.v) Để đơn giản:
+                stats.DangSuaChua = receipts.Count(r => !receiptWithOrders.Contains(r.Id));
                 if (stats.DangSuaChua < 0) stats.DangSuaChua = 0;
 
-                // Tính Tổng Nợ: Tổng tiền sửa - Tổng tiền đã thu
                 decimal tongTienSua = orders.Sum(o => o.TotalAmount ?? 0);
                 decimal tongDaThu = payments.Sum(p => p.AmountReceived ?? 0);
                 stats.TongNo = tongTienSua - tongDaThu;
 
-                // Lượt xe hôm nay
                 var today = DateTime.Today;
                 var tomorrow = today.AddDays(1);
                 var startDateStr = today.ToString("yyyy-MM-ddTHH:mm:ssZ");
@@ -611,23 +575,112 @@ namespace WpfApp1.Services
                     .Get();
                 stats.LuotXeTrongNgay = todayReceipts.Models?.Count ?? 0;
 
-                // Quy định
                 var regulations = await GetRegulationsAsync();
-                stats.MaxDailyVehicles = regulations?.MaxDailyVehicles ?? 30; // default 30
+                stats.MaxDailyVehicles = regulations?.MaxDailyVehicles ?? 30;
 
-                // Hiệu suất: Tổng xe hoàn thành / Tổng xe tiếp nhận trong toàn bộ (hoặc tháng)
                 if (receipts.Count > 0)
                 {
                     stats.HieuSuatSuaChua = (decimal)receiptWithOrders.Count / receipts.Count * 100m;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                // Error handled normally...
+                MessageBox.Show("Lỗi tải dashboard: " + ex.Message);
             }
 
             return stats;
         }
 
+        // Quy định Window
+
+        public async Task<Models.SystemRegulation> GetSystemRegulationsAsync()
+        {
+            var response = await _client.From<Models.SystemRegulation>().Get();
+            return response.Models.FirstOrDefault();
+        }
+
+        public async Task<QuyDinhDashboardStats> GetQuyDinhDashboardStatsAsync()
+        {
+            var stats = new QuyDinhDashboardStats();
+
+            var regulations = await GetSystemRegulationsAsync();
+            stats.HieuXeToiDa = regulations?.MaxCarBrands ?? 10;
+            stats.LuotXeToiDaNgay = regulations?.MaxDailyVehicles ?? 30;
+            stats.DichVuToiDa = (regulations?.MaxParts ?? 100) + (regulations?.MaxLabors ?? 20);
+
+            var vehiclesResponse = await _client.From<Vehicle>().Get();
+            var vehicles = vehiclesResponse.Models?.ToList() ?? new List<Vehicle>();
+            stats.HieuXeHienTai = vehicles
+                .Select(v => v.CarBrandId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .Count();
+
+            var receiptsResponse = await _client.From<ServiceReceipt>().Get();
+            var receipts = receiptsResponse.Models?.ToList() ?? new List<ServiceReceipt>();
+            if (receipts.Any())
+            {
+                var minDate = receipts.Min(r => r.ReceptionDate).Date;
+                var maxDate = receipts.Max(r => r.ReceptionDate).Date;
+                var totalDays = Math.Max(1, (maxDate - minDate).Days + 1);
+                stats.LuotXeTrungBinhNgay = Math.Round((decimal)receipts.Count / totalDays, 1);
+            }
+            else
+            {
+                stats.LuotXeTrungBinhNgay = 0;
+            }
+
+            var orderCount = (await _client.From<RepairOrder>().Get()).Models?.Count ?? 0;
+            stats.DichVuDangNiemYet = orderCount;
+
+            return stats;
+        }
+
+        public async Task<List<Models.SystemRegulationHistory>> GetSystemRegulationHistoryAsync()
+        {
+            var response = await _client.From<Models.SystemRegulationHistory>()
+                .Order("changed_at", Postgrest.Constants.Ordering.Descending)
+                .Get();
+            return response.Models ?? new List<Models.SystemRegulationHistory>();
+        }
+
+        public async Task UpsertSystemRegulationAsync(
+            int maxBrands, int maxVehicles, int maxParts, int maxLabors,
+            SystemRegulation oldReg)
+        {
+            var reg = new Models.SystemRegulation
+            {
+                Id = oldReg?.Id ?? Guid.NewGuid().ToString(),
+                MaxCarBrands = maxBrands,
+                MaxDailyVehicles = maxVehicles,
+                MaxParts = maxParts,
+                MaxLabors = maxLabors
+            };
+
+            await _client.From<Models.SystemRegulation>()
+                .Upsert(reg, new Postgrest.QueryOptions { OnConflict = "id" });
+
+            var changes = new[]
+            {
+                ("QD1_MAX_BRANDS",       oldReg?.MaxCarBrands.ToString(),     maxBrands.ToString()),
+                ("QD1_MAX_CARS_PER_DAY", oldReg?.MaxDailyVehicles.ToString(), maxVehicles.ToString()),
+                ("QD2_MAX_PART_TYPES",   oldReg?.MaxParts.ToString(),         maxParts.ToString()),
+                ("QD2_MAX_LABOR_TYPES",  oldReg?.MaxLabors.ToString(),        maxLabors.ToString()),
+            };
+
+            foreach (var (key, oldVal, newVal) in changes)
+            {
+                if (oldVal == newVal) continue;
+                var history = new Models.SystemRegulationHistory
+                {
+                    RegulationKey = key,
+                    OldValue = oldVal ?? "0",
+                    NewValue = newVal,
+                    ChangedBy = "Quản trị viên",
+                    ChangedAt = DateTime.UtcNow
+                };
+                await _client.From<Models.SystemRegulationHistory>().Insert(history);
+            }
+        }
     }
 }

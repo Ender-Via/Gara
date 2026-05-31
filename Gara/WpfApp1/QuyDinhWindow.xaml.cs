@@ -1,24 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using WpfApp1.Models;
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for QuyDinhWindow.xaml
-    /// </summary>
     public partial class QuyDinhWindow : Window
     {
+        private readonly Dictionary<string, int> _defaultValues = new()
+        {
+            { "QD1_MAX_BRANDS",      10  },
+            { "QD1_MAX_CARS_PER_DAY", 30 },
+            { "QD2_MAX_PART_TYPES",  100 },
+            { "QD2_MAX_LABOR_TYPES",  20 }
+        };
+
+        private readonly ObservableCollection<HistoryRow> _history = new();
+        private Models.SystemRegulation _currentReg;
+        private QuyDinhDashboardStats _dashboardStats;
+
         public QuyDinhWindow()
         {
             InitializeComponent();
@@ -29,54 +34,157 @@ namespace WpfApp1
         {
             try
             {
-                var regulations = await App.DB.GetRegulationsAsync();
-                txtHieuXe.Text = (regulations?.MaxCarBrands ?? 10).ToString();
-                txtSoXeToiDa.Text = (regulations?.MaxDailyVehicles ?? 30).ToString();
-                txtVatTu.Text = (regulations?.MaxParts ?? 200).ToString();
-                txtTienCong.Text = (regulations?.MaxLabors ?? 100).ToString();
+                await LoadDataAsync();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải quy định: " + ex.Message);
+                MessageBox.Show("Không thể tải dữ liệu quy định: " + ex.Message,
+                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-
-        private async void btnSave_Click(object sender, RoutedEventArgs e)
+        private async Task LoadDataAsync()
         {
-            if (!int.TryParse(txtHieuXe.Text, out var maxBrands) || maxBrands <= 0)
+            if (App.DB == null)
+                throw new InvalidOperationException("Chưa khởi tạo kết nối Supabase.");
+
+            _currentReg = await App.DB.GetSystemRegulationsAsync();
+
+            txtQd1HieuXe.Text = (_currentReg?.MaxCarBrands ?? _defaultValues["QD1_MAX_BRANDS"]).ToString();
+            txtQd1SoXe.Text = (_currentReg?.MaxDailyVehicles ?? _defaultValues["QD1_MAX_CARS_PER_DAY"]).ToString();
+            txtQd2VatTu.Text = (_currentReg?.MaxParts ?? _defaultValues["QD2_MAX_PART_TYPES"]).ToString();
+            txtQd2TienCong.Text = (_currentReg?.MaxLabors ?? _defaultValues["QD2_MAX_LABOR_TYPES"]).ToString();
+
+            await ReloadHistoryAsync();
+            await LoadDashboardStatsAsync();
+        }
+
+        private async Task ReloadHistoryAsync()
+        {
+            var history = await App.DB.GetSystemRegulationHistoryAsync();
+            _history.Clear();
+
+            foreach (var item in history.OrderByDescending(x => x.ChangedAt))
             {
-                MessageBox.Show("Số lượng hiệu xe không hợp lệ.");
-                return;
+                _history.Add(new HistoryRow
+                {
+                    ThoiGian = item.ChangedAt.ToString("yyyy-MM-dd HH:mm:ss"),
+                    QuyDinh = item.RegulationKey,
+                    GiaTriCu = string.IsNullOrWhiteSpace(item.OldValue) ? "-" : item.OldValue,
+                    GiaTriMoi = item.NewValue,
+                    NguoiThucHien = string.IsNullOrWhiteSpace(item.ChangedBy) ? "Quản trị viên" : item.ChangedBy
+                });
             }
 
-            if (!int.TryParse(txtSoXeToiDa.Text, out var maxDailyVehicles) || maxDailyVehicles <= 0)
-            {
-                MessageBox.Show("Số xe tối đa/ngày không hợp lệ.");
-                return;
-            }
+            dgvHistory.ItemsSource = _history;
+        }
 
-            if (!int.TryParse(txtVatTu.Text, out var maxParts) || maxParts <= 0)
-            {
-                MessageBox.Show("Số loại vật tư không hợp lệ.");
-                return;
-            }
+        private async Task LoadDashboardStatsAsync()
+        {
+            _dashboardStats = await App.DB.GetQuyDinhDashboardStatsAsync();
 
-            if (!int.TryParse(txtTienCong.Text, out var maxLabors) || maxLabors <= 0)
+            var hieuXeHienTai = _dashboardStats?.HieuXeHienTai ?? 0;
+            var hieuXeToiDa = Math.Max(1, _dashboardStats?.HieuXeToiDa ?? 0);
+            var luotTrungBinh = _dashboardStats?.LuotXeTrungBinhNgay ?? 0m;
+            var luotToiDa = Math.Max(1, _dashboardStats?.LuotXeToiDaNgay ?? 0);
+            var dichVuDangNiemYet = _dashboardStats?.DichVuDangNiemYet ?? 0;
+            var dichVuToiDa = Math.Max(1, _dashboardStats?.DichVuToiDa ?? 0);
+
+            txtHieuXeHienTai.Text = $"{hieuXeHienTai} / {hieuXeToiDa}";
+            pbHieuXe.Maximum = hieuXeToiDa;
+            pbHieuXe.Value = Math.Min(hieuXeHienTai, hieuXeToiDa);
+
+            txtLuotXeTrungBinh.Text = $"{luotTrungBinh:0.#} / {luotToiDa}";
+            pbLuotXe.Maximum = luotToiDa;
+            pbLuotXe.Value = Math.Min((double)luotTrungBinh, luotToiDa);
+
+            txtDichVuDangNiemYet.Text = $"{dichVuDangNiemYet} / {dichVuToiDa}";
+            pbDichVu.Maximum = dichVuToiDa;
+            pbDichVu.Value = Math.Min(dichVuDangNiemYet, dichVuToiDa);
+        }
+
+        private async void BtnViewAllHistory_Click(object sender, RoutedEventArgs e)
+        {
+            try
             {
-                MessageBox.Show("Số loại tiền công không hợp lệ.");
+                await ReloadHistoryAsync();
+
+                var popup = new QuyDinhHistoryPopup
+                {
+                    Owner = this,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
+                popup.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể tải lịch sử quy định: " + ex.Message,
+                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void BtnResetDefault_Click(object sender, RoutedEventArgs e)
+        {
+            txtQd1HieuXe.Text = _defaultValues["QD1_MAX_BRANDS"].ToString();
+            txtQd1SoXe.Text = _defaultValues["QD1_MAX_CARS_PER_DAY"].ToString();
+            txtQd2VatTu.Text = _defaultValues["QD2_MAX_PART_TYPES"].ToString();
+            txtQd2TienCong.Text = _defaultValues["QD2_MAX_LABOR_TYPES"].ToString();
+        }
+
+        private async void BtnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryGetPositiveInt(txtQd1HieuXe.Text, out var qd1Brands) ||
+                !TryGetPositiveInt(txtQd1SoXe.Text, out var qd1Cars) ||
+                !TryGetPositiveInt(txtQd2VatTu.Text, out var qd2Parts) ||
+                !TryGetPositiveInt(txtQd2TienCong.Text, out var qd2Labors))
+            {
+                MessageBox.Show("Vui lòng nhập toàn bộ giá trị là số nguyên dương.",
+                                "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                await App.DB.SaveRegulationsAsync(maxBrands, maxDailyVehicles, maxParts, maxLabors);
-                MessageBox.Show("Lưu thành công!");
+                await App.DB.UpsertSystemRegulationAsync(
+                    qd1Brands, qd1Cars, qd2Parts, qd2Labors, _currentReg);
+
+                await LoadDataAsync();
+                MessageBox.Show("Cập nhật quy định thành công!", "Thông báo",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi lưu quy định: " + ex.Message);
+                MessageBox.Show("Lỗi khi cập nhật: " + ex.Message,
+                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private bool TryGetPositiveInt(string value, out int result)
+        {
+            return int.TryParse(value, out result) && result > 0;
+        }
+
+        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj == null) yield break;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                var child = VisualTreeHelper.GetChild(depObj, i);
+                if (child is T t) yield return t;
+
+                foreach (var childOfChild in FindVisualChildren<T>(child))
+                    yield return childOfChild;
+            }
+        }
+
+        private class HistoryRow
+        {
+            public string ThoiGian { get; set; }
+            public string QuyDinh { get; set; }
+            public string GiaTriCu { get; set; }
+            public string GiaTriMoi { get; set; }
+            public string NguoiThucHien { get; set; }
         }
     }
 }

@@ -247,6 +247,7 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
     }
 
     // 11. Quy Định Hệ Thống
+    // Xóa hoàn toàn class SystemRegulation cũ, thay bằng:
     [Table("system_regulations")]
     public class SystemRegulation : BaseModel
     {
@@ -254,16 +255,39 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         public string Id { get; set; }
 
         [Column("max_car_brands")]
-        public int? MaxCarBrands { get; set; }
+        public int MaxCarBrands { get; set; }
 
         [Column("max_daily_vehicles")]
-        public int? MaxDailyVehicles { get; set; }
+        public int MaxDailyVehicles { get; set; }
 
         [Column("max_parts")]
-        public int? MaxParts { get; set; }
+        public int MaxParts { get; set; }
 
         [Column("max_labors")]
-        public int? MaxLabors { get; set; }
+        public int MaxLabors { get; set; }
+    }
+
+
+    [Table("system_regulation_history")]
+    public class SystemRegulationHistory : BaseModel
+    {
+        [PrimaryKey("id", false)]
+        public string Id { get; set; }
+
+        [Column("regulation_key")]
+        public string RegulationKey { get; set; }
+
+        [Column("old_value")]
+        public string OldValue { get; set; }
+
+        [Column("new_value")]
+        public string NewValue { get; set; }
+
+        [Column("changed_by")]
+        public string ChangedBy { get; set; }
+
+        [Column("changed_at")]
+        public DateTime ChangedAt { get; set; }
     }
 
     // DTO dùng để hiển thị tra cứu xe (không map DB)
@@ -284,6 +308,16 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         public decimal HieuSuatSuaChua { get; set; }
         public int LuotXeTrongNgay { get; set; }
         public int MaxDailyVehicles { get; set; }
+    }
+
+    public class QuyDinhDashboardStats
+    {
+        public int HieuXeHienTai { get; set; }
+        public int HieuXeToiDa { get; set; }
+        public decimal LuotXeTrungBinhNgay { get; set; }
+        public int LuotXeToiDaNgay { get; set; }
+        public int DichVuDangNiemYet { get; set; }
+        public int DichVuToiDa { get; set; }
     }
     
     // DTO cho Tiếp nhận gần đây

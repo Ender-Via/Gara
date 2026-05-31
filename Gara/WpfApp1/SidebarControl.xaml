@@ -7,83 +7,51 @@
              mc:Ignorable="d"
              d:DesignHeight="760"
              d:DesignWidth="260">
-    <Grid Width="260"
-          Background="{StaticResource SidebarBgColor}">
+    <Grid Width="260" Background="{StaticResource SidebarBgColor}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0"
-                    Margin="24,32,24,40">
+        <StackPanel Grid.Row="0" Margin="24,32,24,40">
             <StackPanel Orientation="Horizontal">
-                <Border Width="40"
-                        Height="40"
+                <Border Width="40" Height="40"
                         Background="{StaticResource PrimaryColor}"
-                        CornerRadius="8"
-                        Margin="0,0,12,0">
-                    <materialDesign:PackIcon Kind="Garage"
-                                             Foreground="White"
-                                             Width="24"
-                                             Height="24"
+                        CornerRadius="8" Margin="0,0,12,0">
+                    <materialDesign:PackIcon Kind="Garage" Foreground="White"
+                                             Width="24" Height="24"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="HỆ THỐNG QUẢN LÝ"
-                               FontSize="13"
-                               FontWeight="Bold"
-                               Foreground="White"/>
-                    <TextBlock Text="GARA Ô TÔ"
-                               FontSize="14"
-                               FontWeight="Black"
+                    <TextBlock Text="HỆ THỐNG QUẢN LÝ" FontSize="13" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="GARA Ô TÔ" FontSize="14" FontWeight="Black"
                                Foreground="{StaticResource PrimaryColor}"/>
                 </StackPanel>
             </StackPanel>
             <TextBlock Text="PHẦN MỀM ĐIỀU HÀNH CHUYÊN NGHIỆP"
-                       FontSize="9"
-                       Foreground="#757681"
-                       Margin="0,6,0,0"
-                       FontWeight="SemiBold"/>
+                       FontSize="9" Foreground="#757681" Margin="0,6,0,0" FontWeight="SemiBold"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1">
-            <RadioButton x:Name="Bm1Button"
-                         Content="Tiếp Nhận Xe (BM1)"
-                         Style="{StaticResource NavMenuButton}"
-                         Tag="FileDocumentOutline"
-                         CommandParameter="BM1"
-                         Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm2Button"
-                         Content="Phiếu Sửa Chữa (BM2)"
-                         Style="{StaticResource NavMenuButton}"
-                         Tag="WrenchOutline"
-                         CommandParameter="BM2"
-                         Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm3Button"
-                         Content="Tra Cứu Xe (BM3)"
-                         Style="{StaticResource NavMenuButton}"
-                         Tag="Magnify"
-                         CommandParameter="BM3"
-                         Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm4Button"
-                         Content="Phiếu Thu Tiền (BM4)"
-                         Style="{StaticResource NavMenuButton}"
-                         Tag="Cash"
-                         CommandParameter="BM4"
-                         Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm5Button"
-                         Content="Báo Cáo Tháng (BM5)"
-                         Style="{StaticResource NavMenuButton}"
-                         Tag="ChartBar"
-                         CommandParameter="BM5"
-                         Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Qd6Button"
-                         Content="Thay Đổi Quy Định (QĐ6)"
-                         Style="{StaticResource NavMenuButton}"
-                         Tag="CogOutline"
-                         CommandParameter="QD6"
-                         Click="NavigationButton_Click"/>
+            <RadioButton x:Name="Bm1Button" Content="Tiếp Nhận Xe (BM1)"
+                         Style="{StaticResource NavMenuButton}" Tag="FileDocumentOutline"
+                         CommandParameter="BM1" Click="NavigationButton_Click"/>
+            <RadioButton x:Name="Bm2Button" Content="Phiếu Sửa Chữa (BM2)"
+                         Style="{StaticResource NavMenuButton}" Tag="WrenchOutline"
+                         CommandParameter="BM2" Click="NavigationButton_Click"/>
+            <RadioButton x:Name="Bm3Button" Content="Tra Cứu Xe (BM3)"
+                         Style="{StaticResource NavMenuButton}" Tag="Magnify"
+                         CommandParameter="BM3" Click="NavigationButton_Click"/>
+            <RadioButton x:Name="Bm4Button" Content="Phiếu Thu Tiền (BM4)"
+                         Style="{StaticResource NavMenuButton}" Tag="Cash"
+                         CommandParameter="BM4" Click="NavigationButton_Click"/>
+            <RadioButton x:Name="Bm5Button" Content="Báo Cáo Tháng (BM5)"
+                         Style="{StaticResource NavMenuButton}" Tag="ChartBar"
+                         CommandParameter="BM5" Click="NavigationButton_Click"/>
+            <RadioButton x:Name="Qd6Button" Content="Thay Đổi Quy Định (QĐ6)"
+                         Style="{StaticResource NavMenuButton}" Tag="CogOutline"
+                         CommandParameter="QD6" Click="NavigationButton_Click"/>
         </StackPanel>
     </Grid>
 </UserControl>

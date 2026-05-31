@@ -27,9 +27,7 @@ namespace WpfApp1
         private static void OnActiveItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is SidebarControl sidebar)
-            {
                 sidebar.UpdateActiveItem();
-            }
         }
 
         private void UpdateActiveItem()
