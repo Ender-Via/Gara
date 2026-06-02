@@ -2,7 +2,7 @@
 using Postgrest.Attributes;
 using Postgrest.Models;
 
-namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
+namespace WpfApp1.Models 
 {
     // 1. Hãng Xe
     [Table("car_brands")]
@@ -319,7 +319,25 @@ namespace WpfApp1.Models // Nhớ đổi thành tên Project của m nhé
         public int DichVuDangNiemYet { get; set; }
         public int DichVuToiDa { get; set; }
     }
-    
+
+    public class BaoCaoDoanhThuRow
+    {
+        public int STT { get; set; }
+        public string HieuXe { get; set; }
+        public int SoLuotSua { get; set; }
+        public decimal ThanhTien { get; set; }
+        public double TiLe { get; set; }
+    }
+
+    public class BaoCaoTonKhoRow
+    {
+        public int STT { get; set; }
+        public string VatTuPhuTung { get; set; }
+        public decimal TonDau { get; set; }
+        public decimal PhatSinh { get; set; }
+        public decimal TonCuoi { get; set; }
+    }
+
     // DTO cho Tiếp nhận gần đây
     public class RecentReceiptDTO
     {

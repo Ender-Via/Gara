@@ -28,6 +28,113 @@ namespace WpfApp1.Services
             await _client.InitializeAsync();
         }
 
+
+        public async Task<List<BaoCaoDoanhThuRow>> GetBaoCaoDoanhSoAsync(int month, int year)
+        {
+            DateTime startDate = new DateTime(year, month, 1).ToUniversalTime();
+            DateTime endDate = startDate.AddMonths(1);
+
+            // FIX LỖI: Chuyển DateTime thành chuỗi định dạng yyyy-MM-dd
+            string startStr = startDate.ToString("yyyy-MM-dd");
+            string endStr = endDate.ToString("yyyy-MM-dd");
+
+            var repairOrdersRes = await _client.From<RepairOrder>()
+                .Filter("repair_date", Postgrest.Constants.Operator.GreaterThanOrEqual, startStr) // Dùng chuỗi ở đây
+                .Filter("repair_date", Postgrest.Constants.Operator.LessThan, endStr) // Và ở đây
+                .Get();
+            var repairOrders = repairOrdersRes.Models ?? new List<RepairOrder>();
+
+            var receiptsRes = await _client.From<ServiceReceipt>().Get();
+            var receipts = receiptsRes.Models ?? new List<ServiceReceipt>();
+
+            var vehiclesRes = await _client.From<Vehicle>().Get();
+            var vehicles = vehiclesRes.Models ?? new List<Vehicle>();
+
+            var brandsRes = await _client.From<CarBrand>().Get();
+            var brands = brandsRes.Models ?? new List<CarBrand>();
+
+            var joinedData = from ro in repairOrders
+                             join sr in receipts on ro.ServiceReceiptId equals sr.Id
+                             join v in vehicles on sr.VehicleId equals v.Id
+                             join b in brands on v.CarBrandId equals b.Id
+                             select new { BrandName = b.BrandName, TotalAmount = ro.TotalAmount ?? 0 };
+
+            var groupedData = joinedData
+                .GroupBy(x => x.BrandName)
+                .Select(g => new
+                {
+                    HieuXe = g.Key,
+                    SoLuotSua = g.Count(),
+                    ThanhTien = g.Sum(x => x.TotalAmount)
+                }).ToList();
+
+            decimal totalRevenue = groupedData.Sum(x => x.ThanhTien);
+
+            return groupedData.Select((x, index) => new BaoCaoDoanhThuRow
+            {
+                STT = index + 1,
+                HieuXe = x.HieuXe,
+                SoLuotSua = x.SoLuotSua,
+                ThanhTien = x.ThanhTien,
+                TiLe = totalRevenue > 0 ? Math.Round((double)(x.ThanhTien / totalRevenue) * 100, 2) : 0
+            }).ToList();
+        }
+
+        public async Task<List<BaoCaoTonKhoRow>> GetBaoCaoTonKhoAsync(int month, int year)
+        {
+            DateTime startDate = new DateTime(year, month, 1).ToUniversalTime();
+            DateTime endDate = startDate.AddMonths(1);
+
+            // FIX LỖI: Chuyển DateTime thành chuỗi
+            string startStr = startDate.ToString("yyyy-MM-dd");
+            string endStr = endDate.ToString("yyyy-MM-dd");
+
+            var partsRes = await _client.From<Part>().Get();
+            var parts = partsRes.Models ?? new List<Part>();
+
+            var transactionsRes = await _client.From<InventoryTransaction>()
+                .Filter("transaction_date", Postgrest.Constants.Operator.LessThan, endStr) // Dùng chuỗi ở đây
+                .Get();
+            var transactions = transactionsRes.Models ?? new List<InventoryTransaction>();
+
+            var result = new List<BaoCaoTonKhoRow>();
+            int stt = 1;
+
+            foreach (var part in parts)
+            {
+                var partTransactions = transactions.Where(t => t.PartId == part.Id).ToList();
+
+                decimal tonDauNhap = partTransactions
+                    .Where(t => t.TransactionDate < startDate && t.TransactionType == "NHAP")
+                    .Sum(t => t.Quantity ?? 0);
+                decimal tonDauXuat = partTransactions
+                    .Where(t => t.TransactionDate < startDate && t.TransactionType == "XUAT")
+                    .Sum(t => t.Quantity ?? 0);
+                decimal tonDau = tonDauNhap - tonDauXuat;
+
+                decimal phatSinhNhap = partTransactions
+                    .Where(t => t.TransactionDate >= startDate && t.TransactionDate < endDate && t.TransactionType == "NHAP")
+                    .Sum(t => t.Quantity ?? 0);
+                decimal phatSinhXuat = partTransactions
+                    .Where(t => t.TransactionDate >= startDate && t.TransactionDate < endDate && t.TransactionType == "XUAT")
+                    .Sum(t => t.Quantity ?? 0);
+                decimal phatSinh = phatSinhNhap - phatSinhXuat;
+
+                decimal tonCuoi = tonDau + phatSinh;
+
+                result.Add(new BaoCaoTonKhoRow
+                {
+                    STT = stt++,
+                    VatTuPhuTung = part.PartName,
+                    TonDau = tonDau,
+                    PhatSinh = phatSinh,
+                    TonCuoi = tonCuoi
+                });
+            }
+
+            return result;
+        }
+
         public async Task<List<RecentReceiptDTO>> GetRecentReceiptsAsync(int limit = 5)
         {
             try
