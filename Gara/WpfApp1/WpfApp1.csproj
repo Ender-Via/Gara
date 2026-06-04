@@ -15,4 +15,8 @@
     <PackageReference Include="supabase-csharp" Version="0.16.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="gara.png" />
+  </ItemGroup>
+
 </Project>

@@ -96,18 +96,6 @@ namespace WpfApp1
 
                 txtListSummary.Text = $"Hiển thị 1 - {uiData.Count} của {uiData.Count} xe";
 
-                // Load Stats
-                var stats = await App.DB.GetDashboardStatsAsync();
-                txtTongSoXe.Text = stats.TongSoXe.ToString("N0");
-                txtDangSuaChua.Text = stats.DangSuaChua.ToString("N0");
-                txtTongNo.Text = stats.TongNo.ToString("N0") + " đ";
-                
-                txtHieuSuat.Text = stats.HieuSuatSuaChua.ToString("0") + "%";
-                gridHieuSuatBar.Width = 300 * (double)(stats.HieuSuatSuaChua / 100);
-
-                txtLuotXe.Text = $"{stats.LuotXeTrongNgay}/{stats.MaxDailyVehicles}";
-                gridLuotXeBar.Width = 220 * Math.Min((double)stats.LuotXeTrongNgay / stats.MaxDailyVehicles, 1.0);
-
             }
             catch (Exception ex)
             {

@@ -60,7 +60,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <local:SidebarControl Grid.Column="0"/>
+        <local:SidebarControl Grid.Column="0" ActiveItem="BM5"/>
 
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
@@ -76,11 +76,7 @@
                         <TextBlock Text="Định kỳ hệ thống" Foreground="#64748B" FontWeight="Medium" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" Foreground="#737686" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                        <materialDesign:PackIcon Kind="BellOutline" Width="20" Height="20" Foreground="#434655" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                        <materialDesign:PackIcon Kind="AccountCircleOutline" Width="24" Height="24" Foreground="#434655" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
 

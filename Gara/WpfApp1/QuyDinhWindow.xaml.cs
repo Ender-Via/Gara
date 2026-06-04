@@ -17,7 +17,7 @@ namespace WpfApp1
             { "QD1_MAX_BRANDS",      10  },
             { "QD1_MAX_CARS_PER_DAY", 30 },
             { "QD2_MAX_PART_TYPES",  100 },
-            { "QD2_MAX_LABOR_TYPES",  20 }
+            { "QD2_MAX_LABOR_TYPES",  200 }
         };
 
         private readonly ObservableCollection<HistoryRow> _history = new();

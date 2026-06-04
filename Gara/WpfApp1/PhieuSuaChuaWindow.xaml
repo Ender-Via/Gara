@@ -35,7 +35,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <local:SidebarControl Grid.Column="0"/>
+        <local:SidebarControl Grid.Column="0" ActiveItem="BM2"/>
 
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
@@ -46,16 +46,11 @@
             <Border Grid.Row="0" Background="White" BorderBrush="#E1E2ED" BorderThickness="0,0,0,1" Padding="24,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="PHIẾU SỬA CHỮA (BM2)" FontSize="18" FontWeight="Bold" Foreground="#191B23" VerticalAlignment="Center"/>
+                        <TextBlock Text="PHIẾU SỬA CHỮA" FontSize="18" FontWeight="Bold" Foreground="#191B23" VerticalAlignment="Center"/>
                         <Border Width="1" Height="24" Background="#E1E2ED" Margin="16,0"/>
-                        <TextBlock Text="Lập phiếu mới" Foreground="#2563EB" FontWeight="Bold" VerticalAlignment="Center" Cursor="Hand" Margin="0,0,24,0"/>
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" Foreground="#737686" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                        <materialDesign:PackIcon Kind="BellOutline" Width="20" Height="20" Foreground="#434655" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                        <materialDesign:PackIcon Kind="AccountCircleOutline" Width="24" Height="24" Foreground="#434655" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
 

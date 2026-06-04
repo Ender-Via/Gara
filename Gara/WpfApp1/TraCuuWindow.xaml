@@ -99,10 +99,6 @@
             <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
                 <Grid Margin="30,0">
                     <TextBlock Text="DANH SÁCH VÀ TRA CỨU XE" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="🔔" FontSize="20" Margin="0,0,20,0" Foreground="#666666"/>
-                        <TextBlock Text="👤" FontSize="20" Foreground="#666666"/>
-                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -113,7 +109,7 @@
                     <!-- Search Card -->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="TÌM KIẾM THEO BIỂN SỐ, HIỆU XE HOẶC TÊN KHÁCH HÀNG" FontWeight="SemiBold" Foreground="#444444" FontSize="12" Margin="0,0,0,15"/>
+                            <TextBlock Text="TÌM KIẾM THEO BIỂN SỐ" FontWeight="SemiBold" Foreground="#444444" FontSize="12" Margin="0,0,0,15"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -182,10 +178,7 @@
                         <StackPanel>
                             <Grid Margin="20">
                                 <TextBlock Text="Kết quả tìm kiếm" FontWeight="Bold" FontSize="16"/>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBlock Text="🖨" FontSize="18" Foreground="#888" Margin="0,0,15,0"/>
-                                    <TextBlock Text="📤" FontSize="18" Foreground="#888"/>
-                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"/>
                             </Grid>
                             
                             <!-- Static dummy data to match layout -->
@@ -233,49 +226,6 @@
                             </Grid>
                         </StackPanel>
                     </Border>
-
-                    <!-- Bottom Cards -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Quick Report -->
-                        <Border Grid.Column="0" CornerRadius="8" Background="#1C1E23" Margin="10,0,0,0" Padding="25" Height="250">
-                            <Grid>
-                                <StackPanel>
-                                    <Grid>
-                                        <StackPanel>
-                                            <TextBlock Text="Báo cáo nhanh" Foreground="White" FontWeight="Bold" FontSize="16"/>
-                                            <TextBlock Text="Cập nhật lúc: 14:30 Hôm nay" Foreground="#888" FontSize="12" Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#1057E2" Width="40" Height="40" CornerRadius="8">
-                                            <TextBlock Text="📈" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"/>
-                                        </Border>
-                                    </Grid>
-
-                                    <!-- Progress 1 -->
-                                    <Grid Margin="0,30,0,0">
-                                        <TextBlock Text="Hiệu suất sửa chữa" Foreground="#AAA" FontSize="13"/>
-                                        <TextBlock x:Name="txtHieuSuat" Text="0%" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <Border Background="#333" Height="6" CornerRadius="3" Margin="0,10,0,20">
-                                        <Border x:Name="gridHieuSuatBar" Background="#1057E2" Width="300" HorizontalAlignment="Left" CornerRadius="3"/>
-                                    </Border>
-
-                                    <!-- Progress 2 -->
-                                    <Grid>
-                                        <TextBlock Text="Lượt xe trong ngày" Foreground="#AAA" FontSize="13"/>
-                                        <TextBlock x:Name="txtLuotXe" Text="18/25" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right"/>
-                                    </Grid>
-                                    <Border Background="#333" Height="6" CornerRadius="3" Margin="0,10,0,0">
-                                        <Border x:Name="gridLuotXeBar" Background="#D5561E" Width="220" HorizontalAlignment="Left" CornerRadius="3"/>
-                                    </Border>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </Grid>
 
                 </StackPanel>
             </ScrollViewer>

@@ -596,6 +596,10 @@ namespace WpfApp1.Services
                     .Filter("vehicle_id", Operator.In, vehicleIds)
                     .Get();
                 var receipts = receiptsResponse.Models?.ToList() ?? new List<ServiceReceipt>();
+                var latestReceiptByVehicleId = receipts
+                    .Where(r => !string.IsNullOrWhiteSpace(r.VehicleId))
+                    .GroupBy(r => r.VehicleId)
+                    .ToDictionary(g => g.Key, g => g.Max(x => x.ReceptionDate));
 
                 var receiptIds = receipts.Select(r => r.Id).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
                 var ordersResponse = await _client.From<RepairOrder>()
@@ -612,7 +616,10 @@ namespace WpfApp1.Services
                 var result = new List<TraCuuXeRow>();
                 int stt = 1;
 
-                foreach (var v in vehicles)
+                foreach (var v in vehicles
+                    .OrderByDescending(v => latestReceiptByVehicleId.TryGetValue(v.Id, out var latestDate)
+                        ? latestDate
+                        : DateTime.MinValue))
                 {
                     var customer = customerMap.TryGetValue(v.CustomerId ?? "", out var c) ? c : null;
                     var brand = brandMap.TryGetValue(v.CarBrandId ?? "", out var b) ? b : null;
