@@ -750,14 +750,6 @@ namespace WpfApp1.Services
             return stats;
         }
 
-        public async Task<List<Models.SystemRegulationHistory>> GetSystemRegulationHistoryAsync()
-        {
-            var response = await _client.From<Models.SystemRegulationHistory>()
-                .Order("changed_at", Postgrest.Constants.Ordering.Descending)
-                .Get();
-            return response.Models ?? new List<Models.SystemRegulationHistory>();
-        }
-
         public async Task UpsertSystemRegulationAsync(
             int maxBrands, int maxVehicles, int maxParts, int maxLabors,
             SystemRegulation oldReg)
@@ -773,28 +765,6 @@ namespace WpfApp1.Services
 
             await _client.From<Models.SystemRegulation>()
                 .Upsert(reg, new Postgrest.QueryOptions { OnConflict = "id" });
-
-            var changes = new[]
-            {
-                ("QD1_MAX_BRANDS",       oldReg?.MaxCarBrands.ToString(),     maxBrands.ToString()),
-                ("QD1_MAX_CARS_PER_DAY", oldReg?.MaxDailyVehicles.ToString(), maxVehicles.ToString()),
-                ("QD2_MAX_PART_TYPES",   oldReg?.MaxParts.ToString(),         maxParts.ToString()),
-                ("QD2_MAX_LABOR_TYPES",  oldReg?.MaxLabors.ToString(),        maxLabors.ToString()),
-            };
-
-            foreach (var (key, oldVal, newVal) in changes)
-            {
-                if (oldVal == newVal) continue;
-                var history = new Models.SystemRegulationHistory
-                {
-                    RegulationKey = key,
-                    OldValue = oldVal ?? "0",
-                    NewValue = newVal,
-                    ChangedBy = "Quản trị viên",
-                    ChangedAt = DateTime.UtcNow
-                };
-                await _client.From<Models.SystemRegulationHistory>().Insert(history);
-            }
         }
     }
 }

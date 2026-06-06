@@ -20,7 +20,6 @@ namespace WpfApp1
             { "QD2_MAX_LABOR_TYPES",  200 }
         };
 
-        private readonly ObservableCollection<HistoryRow> _history = new();
         private Models.SystemRegulation _currentReg;
         private QuyDinhDashboardStats _dashboardStats;
 
@@ -55,28 +54,7 @@ namespace WpfApp1
             txtQd2VatTu.Text = (_currentReg?.MaxParts ?? _defaultValues["QD2_MAX_PART_TYPES"]).ToString();
             txtQd2TienCong.Text = (_currentReg?.MaxLabors ?? _defaultValues["QD2_MAX_LABOR_TYPES"]).ToString();
 
-            await ReloadHistoryAsync();
             await LoadDashboardStatsAsync();
-        }
-
-        private async Task ReloadHistoryAsync()
-        {
-            var history = await App.DB.GetSystemRegulationHistoryAsync();
-            _history.Clear();
-
-            foreach (var item in history.OrderByDescending(x => x.ChangedAt))
-            {
-                _history.Add(new HistoryRow
-                {
-                    ThoiGian = item.ChangedAt.ToString("yyyy-MM-dd HH:mm:ss"),
-                    QuyDinh = item.RegulationKey,
-                    GiaTriCu = string.IsNullOrWhiteSpace(item.OldValue) ? "-" : item.OldValue,
-                    GiaTriMoi = item.NewValue,
-                    NguoiThucHien = string.IsNullOrWhiteSpace(item.ChangedBy) ? "Quản trị viên" : item.ChangedBy
-                });
-            }
-
-            dgvHistory.ItemsSource = _history;
         }
 
         private async Task LoadDashboardStatsAsync()
@@ -103,35 +81,22 @@ namespace WpfApp1
             pbDichVu.Value = Math.Min(dichVuDangNiemYet, dichVuToiDa);
         }
 
-        private async void BtnViewAllHistory_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await ReloadHistoryAsync();
-
-                var popup = new QuyDinhHistoryPopup
-                {
-                    Owner = this,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
-                popup.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Không thể tải lịch sử quy định: " + ex.Message,
-                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private async void BtnResetDefault_Click(object sender, RoutedEventArgs e)
         {
             txtQd1HieuXe.Text = _defaultValues["QD1_MAX_BRANDS"].ToString();
             txtQd1SoXe.Text = _defaultValues["QD1_MAX_CARS_PER_DAY"].ToString();
             txtQd2VatTu.Text = _defaultValues["QD2_MAX_PART_TYPES"].ToString();
             txtQd2TienCong.Text = _defaultValues["QD2_MAX_LABOR_TYPES"].ToString();
+
+            await UpdateRegulationsAsync();
         }
 
         private async void BtnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            await UpdateRegulationsAsync();
+        }
+
+        private async Task UpdateRegulationsAsync()
         {
             if (!TryGetPositiveInt(txtQd1HieuXe.Text, out var qd1Brands) ||
                 !TryGetPositiveInt(txtQd1SoXe.Text, out var qd1Cars) ||
