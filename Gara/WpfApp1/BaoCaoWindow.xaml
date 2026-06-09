@@ -173,6 +173,7 @@
                     </TabControl>
 
                     <Button Content="Xuất File Excel / In Báo Cáo" Width="220" Height="45" Margin="0,24,0,0" 
+                            Click="BtnXuatExcel_Click"
                             HorizontalAlignment="Right" Background="Transparent" Foreground="#2563EB" 
                             BorderBrush="#2563EB" BorderThickness="1">
                         <Button.Resources>

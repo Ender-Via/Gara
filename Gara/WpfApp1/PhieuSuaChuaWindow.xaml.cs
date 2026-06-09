@@ -107,7 +107,7 @@ namespace WpfApp1
 
                 row.LineTotal = (sl * gia) + cong;
 
-                dgvChiTiet.Items.Refresh();
+                
 
                 TinhTongTienPhieu();
             }), System.Windows.Threading.DispatcherPriority.Background);
