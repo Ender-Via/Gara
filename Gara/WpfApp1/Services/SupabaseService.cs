@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Collections.Generic;
-using WpfApp1.Models;
+using WpfApp1.Models.Entities;
+using WpfApp1.Models.DTOs;
 using WpfApp1.ViewModels;
 using static Postgrest.Constants;
 
@@ -707,9 +708,9 @@ namespace WpfApp1.Services
 
         // Quy định Window
 
-        public async Task<Models.SystemRegulation> GetSystemRegulationsAsync()
+        public async Task<SystemRegulation> GetSystemRegulationsAsync()
         {
-            var response = await _client.From<Models.SystemRegulation>().Get();
+            var response = await _client.From<SystemRegulation>().Get();
             return response.Models.FirstOrDefault();
         }
 
@@ -754,7 +755,7 @@ namespace WpfApp1.Services
             int maxBrands, int maxVehicles, int maxParts, int maxLabors,
             SystemRegulation oldReg)
         {
-            var reg = new Models.SystemRegulation
+            var reg = new SystemRegulation
             {
                 Id = oldReg?.Id ?? Guid.NewGuid().ToString(),
                 MaxCarBrands = maxBrands,
@@ -763,7 +764,7 @@ namespace WpfApp1.Services
                 MaxLabors = maxLabors
             };
 
-            await _client.From<Models.SystemRegulation>()
+            await _client.From<SystemRegulation>()
                 .Upsert(reg, new Postgrest.QueryOptions { OnConflict = "id" });
         }
     }

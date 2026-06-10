@@ -1,38 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using WpfApp1.Models;
+using WpfApp1.Models.DTOs;
+using WpfApp1.ViewModels;
 
 namespace WpfApp1
 {
-    public class XeItem
-    {
-        public string STT { get; set; }
-        public string BienSo { get; set; }
-        public string HieuXe { get; set; }
-        public string ChuXe { get; set; }
-        public string TienNo { get; set; }
-        public string Color { get; set; }
-    }
-
     /// <summary>
     /// Interaction logic for TraCuuWindow.xaml
     /// </summary>
     public partial class TraCuuWindow : Window
     {
+        private readonly TraCuuViewModel _viewModel;
+
         public TraCuuWindow()
         {
             InitializeComponent();
+            _viewModel = new TraCuuViewModel();
             Loaded += TraCuuWindow_Loaded;
             btnTimKiem.Click += btnTimKiem_Click;
             
@@ -78,24 +66,12 @@ namespace WpfApp1
                 {
                     bienSo = "";
                 }
-                
-                List<TraCuuXeRow> data = await App.DB.TraCuuXeAsync(bienSo);
-                
-                // Map to UI model format
-                var uiData = data.Select((item, index) => new XeItem
-                {
-                    STT = (index + 1).ToString(),
-                    BienSo = item.BienSo,
-                    HieuXe = item.HieuXe,
-                    ChuXe = item.ChuXe,
-                    TienNo = item.TienNo.ToString("N0") + " đ",
-                    Color = item.TienNo > 0 ? "#D93025" : "#222222"
-                }).ToList();
+
+                var data = await _viewModel.TraCuuXeAsync(bienSo);
+                var uiData = _viewModel.MapToUiModel(data);
 
                 dgDanhSachXe.ItemsSource = uiData;
-
                 txtListSummary.Text = $"Hiển thị 1 - {uiData.Count} của {uiData.Count} xe";
-
             }
             catch (Exception ex)
             {

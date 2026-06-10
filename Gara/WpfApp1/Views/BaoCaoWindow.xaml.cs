@@ -6,7 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using WpfApp1.Models;
+using WpfApp1.Models.DTOs;
+using WpfApp1.ViewModels;
 
 namespace WpfApp1
 {
@@ -14,10 +15,12 @@ namespace WpfApp1
     {
         public List<BaoCaoDoanhThuRow> BaoCaoDoanhThu { get; set; }
         public List<BaoCaoTonKhoRow> BaoCaoTonVatTu { get; set; }
+        private readonly BaoCaoViewModel _viewModel;
 
         public BaoCaoWindow()
         {
             InitializeComponent();
+            _viewModel = new BaoCaoViewModel();
             DataContext = this;
         }
 
@@ -36,8 +39,8 @@ namespace WpfApp1
 
             try
             {
-                BaoCaoDoanhThu = await App.DB.GetBaoCaoDoanhSoAsync(month, year);
-                BaoCaoTonVatTu = await App.DB.GetBaoCaoTonKhoAsync(month, year);
+                BaoCaoDoanhThu = await _viewModel.GetBaoCaoDoanhSoAsync(month, year);
+                BaoCaoTonVatTu = await _viewModel.GetBaoCaoTonKhoAsync(month, year);
 
                 dgvDoanhSo.ItemsSource = BaoCaoDoanhThu;
                 dgvTonKho.ItemsSource = BaoCaoTonVatTu;

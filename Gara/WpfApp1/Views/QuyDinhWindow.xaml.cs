@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using WpfApp1.Models;
+using WpfApp1.Models.Entities;
+using WpfApp1.Models.DTOs;
+using WpfApp1.ViewModels;
 
 namespace WpfApp1
 {
@@ -20,12 +22,14 @@ namespace WpfApp1
             { "QD2_MAX_LABOR_TYPES",  200 }
         };
 
-        private Models.SystemRegulation _currentReg;
+        private SystemRegulation _currentReg;
         private QuyDinhDashboardStats _dashboardStats;
+        private readonly QuyDinhViewModel _viewModel;
 
         public QuyDinhWindow()
         {
             InitializeComponent();
+            _viewModel = new QuyDinhViewModel();
             Loaded += QuyDinhWindow_Loaded;
         }
 
@@ -44,10 +48,7 @@ namespace WpfApp1
 
         private async Task LoadDataAsync()
         {
-            if (App.DB == null)
-                throw new InvalidOperationException("Chưa khởi tạo kết nối Supabase.");
-
-            _currentReg = await App.DB.GetSystemRegulationsAsync();
+            _currentReg = await _viewModel.GetSystemRegulationsAsync();
 
             txtQd1HieuXe.Text = (_currentReg?.MaxCarBrands ?? _defaultValues["QD1_MAX_BRANDS"]).ToString();
             txtQd1SoXe.Text = (_currentReg?.MaxDailyVehicles ?? _defaultValues["QD1_MAX_CARS_PER_DAY"]).ToString();
@@ -59,7 +60,7 @@ namespace WpfApp1
 
         private async Task LoadDashboardStatsAsync()
         {
-            _dashboardStats = await App.DB.GetQuyDinhDashboardStatsAsync();
+            _dashboardStats = await _viewModel.GetQuyDinhDashboardStatsAsync();
 
             var hieuXeHienTai = _dashboardStats?.HieuXeHienTai ?? 0;
             var hieuXeToiDa = Math.Max(1, _dashboardStats?.HieuXeToiDa ?? 0);
@@ -110,7 +111,7 @@ namespace WpfApp1
 
             try
             {
-                await App.DB.UpsertSystemRegulationAsync(
+                await _viewModel.UpsertSystemRegulationAsync(
                     qd1Brands, qd1Cars, qd2Parts, qd2Labors, _currentReg);
 
                 await LoadDataAsync();

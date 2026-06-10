@@ -1,10 +1,10 @@
-﻿using Postgrest.Attributes;
+using Postgrest.Attributes;
 using Postgrest.Models;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace WpfApp1.Models 
+namespace WpfApp1.Models.Entities
 {
     // 1. Hãng Xe
     [Table("car_brands")]
@@ -275,7 +275,6 @@ namespace WpfApp1.Models
     }
 
     // 11. Quy Định Hệ Thống
-    // Xóa hoàn toàn class SystemRegulation cũ, thay bằng:
     [Table("system_regulations")]
     public class SystemRegulation : BaseModel
     {
@@ -293,62 +292,5 @@ namespace WpfApp1.Models
 
         [Column("max_labors")]
         public int MaxLabors { get; set; }
-    }
-
-    // DTO dùng để hiển thị tra cứu xe (không map DB)
-    public class TraCuuXeRow
-    {
-        public int STT { get; set; }
-        public string BienSo { get; set; }
-        public string HieuXe { get; set; }
-        public string ChuXe { get; set; }
-        public decimal TienNo { get; set; }
-    }
-
-    public class TraCuuDashBoardStats
-    {
-        public int TongSoXe { get; set; }
-        public int DangSuaChua { get; set; }
-        public decimal TongNo { get; set; }
-        public decimal HieuSuatSuaChua { get; set; }
-        public int LuotXeTrongNgay { get; set; }
-        public int MaxDailyVehicles { get; set; }
-    }
-
-    public class QuyDinhDashboardStats
-    {
-        public int HieuXeHienTai { get; set; }
-        public int HieuXeToiDa { get; set; }
-        public decimal LuotXeTrungBinhNgay { get; set; }
-        public int LuotXeToiDaNgay { get; set; }
-        public int DichVuDangNiemYet { get; set; }
-        public int DichVuToiDa { get; set; }
-    }
-
-    public class BaoCaoDoanhThuRow
-    {
-        public int STT { get; set; }
-        public string HieuXe { get; set; }
-        public int SoLuotSua { get; set; }
-        public decimal ThanhTien { get; set; }
-        public double TiLe { get; set; }
-    }
-
-    public class BaoCaoTonKhoRow
-    {
-        public int STT { get; set; }
-        public string VatTuPhuTung { get; set; }
-        public decimal TonDau { get; set; }
-        public decimal PhatSinh { get; set; }
-        public decimal TonCuoi { get; set; }
-    }
-
-    // DTO cho Tiếp nhận gần đây
-    public class RecentReceiptDTO
-    {
-        public string TenKhach { get; set; }
-        public string BienSo { get; set; }
-        public string HieuXe { get; set; }
-        public string ThoiGian { get; set; }
     }
 }
