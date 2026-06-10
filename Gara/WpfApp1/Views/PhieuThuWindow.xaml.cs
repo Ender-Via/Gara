@@ -4,14 +4,14 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using WpfApp1.Services;
 using WpfApp1.ViewModels;
+using WpfApp1.Models.DTOs;
 
 namespace WpfApp1
 {
     public partial class PhieuThuWindow : Window
     {
-        private readonly SupabaseService _service;
+        private readonly PhieuThuViewModel _viewModel;
         private readonly ObservableCollection<RecentPaymentReceiptRow> _recentPayments = new();
         private decimal _currentDebt;
         private string _lastRepairOrderId = string.Empty;
@@ -20,8 +20,7 @@ namespace WpfApp1
         public PhieuThuWindow()
         {
             InitializeComponent();
-
-            _service = App.DB ?? new SupabaseService();
+            _viewModel = new PhieuThuViewModel();
             dgGiaoDichGanDay.ItemsSource = _recentPayments;
 
             txtMaPhieu.IsReadOnly = true;
@@ -35,9 +34,6 @@ namespace WpfApp1
         {
             try
             {
-                if (_service._client == null)
-                    await _service.InitializeAsync();
-
                 await GenerateAutoCodeAsync();
                 await LoadRecentPaymentsAsync();
             }
@@ -51,7 +47,7 @@ namespace WpfApp1
         {
             try
             {
-                txtMaPhieu.Text = await _service.GetNextPaymentCodeAsync();
+                txtMaPhieu.Text = await _viewModel.GetNextPaymentCodeAsync();
             }
             catch (Exception ex)
             {
@@ -64,7 +60,7 @@ namespace WpfApp1
         {
             _recentPayments.Clear();
 
-            var rows = await _service.GetRecentPaymentReceiptsAsync();
+            var rows = await _viewModel.GetRecentPaymentReceiptsAsync();
             foreach (var row in rows)
             {
                 _recentPayments.Add(row);
@@ -88,7 +84,7 @@ namespace WpfApp1
         {
             try
             {
-                var summary = await _service.GetVehiclePaymentSummaryAsync(bienSo);
+                var summary = await _viewModel.GetVehiclePaymentSummaryAsync(bienSo);
                 if (summary.Vehicle == null)
                 {
                     ResetDebtSummary();
@@ -166,7 +162,7 @@ namespace WpfApp1
                     : txtGhiChu.Text.Trim();
                 var ngayThu = dpNgayThu.SelectedDate ?? DateTime.Now;
 
-                await _service.CreatePaymentReceiptAsync(bienSo, soTienThu, ngayThu, ghiChu);
+                await _viewModel.CreatePaymentReceiptAsync(bienSo, soTienThu, ngayThu, ghiChu);
 
                 MessageBox.Show("Lưu phiếu thu tiền thành công!");
                 txtSoTien.Text = string.Empty;
