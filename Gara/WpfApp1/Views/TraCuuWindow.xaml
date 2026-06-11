@@ -118,7 +118,6 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBox x:Name="txtBienSoSearch" Grid.Column="0" Text="Nhập thông tin cần tìm..." Padding="15,10" FontSize="14" Foreground="#888888" BorderBrush="#E0E0E0" Margin="0,0,15,0" VerticalContentAlignment="Center"/>
                                 <Button x:Name="btnTimKiem" Grid.Column="1" Content="🔍 Tìm kiếm" Background="#1057E2" Foreground="White" Padding="30,10" BorderThickness="0" FontWeight="SemiBold" Margin="0,0,15,0"/>
-                                <Button Grid.Column="2" Content="↺ Làm mới" Background="White" Foreground="#444444" BorderBrush="#E0E0E0" BorderThickness="1" Padding="30,10" FontWeight="SemiBold"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -165,7 +164,6 @@
                                     <TextBlock Text="TỔNG NỢ CHƯA THU" Foreground="#5F6F7E" FontWeight="SemiBold" FontSize="12"/>
                                     <TextBlock x:Name="txtTongNo" Text="0 đ" Foreground="#111111" FontWeight="Bold" FontSize="20"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                        <Border Background="#D5561E" Height="2" Width="60" HorizontalAlignment="Left"/>
                                         <Border Background="#D1D5DB" Height="2" Width="40" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                 </StackPanel>

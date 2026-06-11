@@ -72,6 +72,12 @@ namespace WpfApp1
 
                 dgDanhSachXe.ItemsSource = uiData;
                 txtListSummary.Text = $"Hiển thị 1 - {uiData.Count} của {uiData.Count} xe";
+
+                // Fetch and display dashboard stats
+                var stats = await _viewModel.GetDashboardStatsAsync();
+                txtTongSoXe.Text = stats.TongSoXe.ToString("N0");
+                txtDangSuaChua.Text = stats.DangSuaChua.ToString("N0");
+                txtTongNo.Text = stats.TongNo.ToString("N0") + " đ";
             }
             catch (Exception ex)
             {
