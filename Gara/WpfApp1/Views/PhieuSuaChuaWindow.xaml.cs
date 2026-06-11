@@ -109,13 +109,19 @@ namespace WpfApp1
                 }
 
                 DateTime ngaySua = dpNgayTiepNhan.SelectedDate ?? DateTime.Now;
+                string bienSo = txtBienSo.SelectedValue?.ToString() ?? "";
 
-                bool isSuccess = await _viewModel.LuuPhieuSuaChuaAsync(ngaySua, _danhSachChiTiet);
+                bool isSuccess = await _viewModel.LuuPhieuSuaChuaAsync(bienSo, ngaySua, _danhSachChiTiet);
 
                 if (isSuccess)
                 {
                     MessageBox.Show("Lưu thành công", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                    this.Close(); 
+
+                    // Clear form for next input instead of closing/navigating
+                    txtBienSo.SelectedIndex = -1;
+                    dpNgayTiepNhan.SelectedDate = DateTime.Now;
+                    _danhSachChiTiet.Clear();
+                    txtTotalAmount.Text = "0";
                 }
             }
             catch (Exception ex)

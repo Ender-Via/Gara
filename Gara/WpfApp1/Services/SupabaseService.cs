@@ -311,19 +311,33 @@ namespace WpfApp1.Services
             return true;
         }
 
-        public async Task<bool> LuuPhieuSuaChuaAsync(DateTime ngaySuaChua, IEnumerable<RepairOrderDetail> danhSachChiTiet)
+        public async Task<bool> LuuPhieuSuaChuaAsync(string licensePlate, DateTime ngaySuaChua, IEnumerable<RepairOrderDetail> danhSachChiTiet)
         {
             var danhSachThucTe = danhSachChiTiet.Where(x => !string.IsNullOrEmpty(x.Content) || x.PartId != null).ToList();
 
             if (!danhSachThucTe.Any())
                 throw new Exception("Bảng chi tiết đang trống!");
 
+            // Find vehicle
+            var vehicleRes = await _client.From<Vehicle>().Filter("license_plate", Operator.Equals, licensePlate).Get();
+            var vehicle = vehicleRes.Models.FirstOrDefault();
+            if (vehicle == null) throw new Exception("Không tìm thấy xe");
+
+            // Find latest receipt
+            var receiptRes = await _client.From<ServiceReceipt>()
+                .Filter("vehicle_id", Operator.Equals, vehicle.Id)
+                .Order("reception_date", Ordering.Descending)
+                .Get();
+            var receipt = receiptRes.Models.FirstOrDefault();
+            if (receipt == null) throw new Exception("Xe chưa được tiếp nhận");
+
             decimal tongTien = danhSachThucTe.Sum(x => x.LineTotal ?? 0);
 
             var newOrder = new RepairOrder
             {
-                RepairDate = ngaySuaChua,
-                TotalAmount = tongTien
+                RepairDate = DateTime.SpecifyKind(ngaySuaChua, DateTimeKind.Local).ToUniversalTime(),
+                TotalAmount = tongTien,
+                ServiceReceiptId = receipt.Id
             };
 
             var orderResponse = await _client.From<RepairOrder>().Insert(newOrder);
