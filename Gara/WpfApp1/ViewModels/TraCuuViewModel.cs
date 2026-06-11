@@ -12,6 +12,11 @@ namespace WpfApp1.ViewModels
             return await App.DB.TraCuuXeAsync(bienSoFilter);
         }
 
+        public async Task<TraCuuDashBoardStats> GetDashboardStatsAsync()
+        {
+            return await App.DB.GetDashboardStatsAsync();
+        }
+
         public List<XeItemViewModel> MapToUiModel(List<TraCuuXeRow> data)
         {
             return data.Select((item, index) => new XeItemViewModel

@@ -71,7 +71,7 @@
             <Border Grid.Row="0" Background="White" BorderBrush="#E1E2ED" BorderThickness="0,0,0,1" Padding="24,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="BÁO CÁO THÁNG (BM5)" FontSize="18" FontWeight="Bold" Foreground="#191B23" VerticalAlignment="Center"/>
+                        <TextBlock Text="BÁO CÁO THÁNG " FontSize="18" FontWeight="Bold" Foreground="#191B23" VerticalAlignment="Center"/>
                         <Border Width="1" Height="24" Background="#E1E2ED" Margin="16,0"/>
                         <TextBlock Text="Định kỳ hệ thống" Foreground="#64748B" FontWeight="Medium" VerticalAlignment="Center"/>
                     </StackPanel>

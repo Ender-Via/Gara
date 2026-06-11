@@ -45,7 +45,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="PHIẾU THU TIỀN (BM4)"
+                <TextBlock Text="PHIẾU THU TIỀN "
                            Foreground="#080B12"
                            FontWeight="Bold"
                            FontSize="28"
