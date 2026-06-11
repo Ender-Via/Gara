@@ -26,9 +26,9 @@ namespace WpfApp1.ViewModels
             return response.Models ?? new List<Labor>();
         }
 
-        public async Task<bool> LuuPhieuSuaChuaAsync(DateTime ngaySuaChua, IEnumerable<RepairOrderDetail> danhSachChiTiet)
+        public async Task<bool> LuuPhieuSuaChuaAsync(string licensePlate, DateTime ngaySuaChua, IEnumerable<RepairOrderDetail> danhSachChiTiet)
         {
-            return await App.DB.LuuPhieuSuaChuaAsync(ngaySuaChua, danhSachChiTiet);
+            return await App.DB.LuuPhieuSuaChuaAsync(licensePlate, ngaySuaChua, danhSachChiTiet);
         }
 
         public decimal CalculateTotal(IEnumerable<RepairOrderDetail> details)

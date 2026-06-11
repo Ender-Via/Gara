@@ -15,6 +15,7 @@ namespace WpfApp1
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            this.ShutdownMode = ShutdownMode.OnLastWindowClose;
 
 
             DB = new SupabaseService();
