@@ -212,7 +212,7 @@ namespace WpfApp1
                             ws2.Cell(currentRow, 1).Value = item.STT;
                             ws2.Cell(currentRow, 2).Value = item.VatTuPhuTung;
                             ws2.Cell(currentRow, 3).Value = item.TonDau;
-                            ws2.Cell(currentRow, 4).Value = item.PhatSinh;
+                            ws2.Cell(currentRow, 4).Value = item.PhatSinhDisplay;
                             ws2.Cell(currentRow, 5).Value = item.TonCuoi;
 
                             ws2.Cell(currentRow, 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);

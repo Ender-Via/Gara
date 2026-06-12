@@ -83,18 +83,20 @@ namespace WpfApp1.Services
 
         public async Task<List<BaoCaoTonKhoRow>> GetBaoCaoTonKhoAsync(int month, int year)
         {
-            DateTime startDate = new DateTime(year, month, 1).ToUniversalTime();
+            // 1. Thiết lập các mốc thời gian chuẩn UTC
+            DateTime startDate = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
             DateTime endDate = startDate.AddMonths(1);
 
-            // FIX LỖI: Chuyển DateTime thành chuỗi
-            string startStr = startDate.ToString("yyyy-MM-dd");
-            string endStr = endDate.ToString("yyyy-MM-dd");
+            // Chuyển thành chuỗi ISO để lọc trên Server
+            string endStr = endDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
 
+            // 2. Lấy dữ liệu danh mục phụ tùng
             var partsRes = await _client.From<Part>().Get();
             var parts = partsRes.Models ?? new List<Part>();
 
+            // 3. Lấy toàn bộ giao dịch từ trước đến hết tháng báo cáo
             var transactionsRes = await _client.From<InventoryTransaction>()
-                .Filter("transaction_date", Postgrest.Constants.Operator.LessThan, endStr) // Dùng chuỗi ở đây
+                .Filter("transaction_date", Postgrest.Constants.Operator.LessThan, endStr)
                 .Get();
             var transactions = transactionsRes.Models ?? new List<InventoryTransaction>();
 
@@ -103,8 +105,19 @@ namespace WpfApp1.Services
 
             foreach (var part in parts)
             {
+                // Lọc giao dịch của riêng phụ tùng này
                 var partTransactions = transactions.Where(t => t.PartId == part.Id).ToList();
 
+                // Chuẩn hóa múi giờ để so sánh chính xác tại Client
+                foreach (var t in partTransactions)
+                {
+                    if (t.TransactionDate.Kind == DateTimeKind.Unspecified)
+                        t.TransactionDate = DateTime.SpecifyKind(t.TransactionDate, DateTimeKind.Utc);
+                    else
+                        t.TransactionDate = t.TransactionDate.ToUniversalTime();
+                }
+
+                // A. TỒN ĐẦU: Tổng (Nhập - Xuất) TRƯỚC ngày startDate
                 decimal tonDauNhap = partTransactions
                     .Where(t => t.TransactionDate < startDate && t.TransactionType == "NHAP")
                     .Sum(t => t.Quantity ?? 0);
@@ -113,14 +126,18 @@ namespace WpfApp1.Services
                     .Sum(t => t.Quantity ?? 0);
                 decimal tonDau = tonDauNhap - tonDauXuat;
 
+                // B. PHÁT SINH TRONG THÁNG: Tổng biến động (Nhập - Xuất) TRONG tháng
                 decimal phatSinhNhap = partTransactions
                     .Where(t => t.TransactionDate >= startDate && t.TransactionDate < endDate && t.TransactionType == "NHAP")
                     .Sum(t => t.Quantity ?? 0);
                 decimal phatSinhXuat = partTransactions
                     .Where(t => t.TransactionDate >= startDate && t.TransactionDate < endDate && t.TransactionType == "XUAT")
                     .Sum(t => t.Quantity ?? 0);
+
+                // Cột Phát sinh hiển thị sự thay đổi ròng (Nhập thêm - Tiêu thụ)
                 decimal phatSinh = phatSinhNhap - phatSinhXuat;
 
+                // C. TỒN CUỐI: Tồn đầu + Phát sinh
                 decimal tonCuoi = tonDau + phatSinh;
 
                 result.Add(new BaoCaoTonKhoRow
