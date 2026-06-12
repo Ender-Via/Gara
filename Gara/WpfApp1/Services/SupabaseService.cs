@@ -83,18 +83,19 @@ namespace WpfApp1.Services
 
         public async Task<List<BaoCaoTonKhoRow>> GetBaoCaoTonKhoAsync(int month, int year)
         {
-            DateTime startDate = new DateTime(year, month, 1).ToUniversalTime();
+            // Thiết lập ngày đầu tháng và ngày đầu tháng sau (để lấy range)
+            DateTime startDate = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
             DateTime endDate = startDate.AddMonths(1);
 
-            // FIX LỖI: Chuyển DateTime thành chuỗi
-            string startStr = startDate.ToString("yyyy-MM-dd");
-            string endStr = endDate.ToString("yyyy-MM-dd");
+            // Chuyển thành chuỗi ISO 8601 để Filter chính xác trên DB
+            string endStr = endDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
 
             var partsRes = await _client.From<Part>().Get();
             var parts = partsRes.Models ?? new List<Part>();
 
+            // Lấy tất cả giao dịch cho đến cuối tháng đang báo cáo
             var transactionsRes = await _client.From<InventoryTransaction>()
-                .Filter("transaction_date", Postgrest.Constants.Operator.LessThan, endStr) // Dùng chuỗi ở đây
+                .Filter("transaction_date", Postgrest.Constants.Operator.LessThan, endStr)
                 .Get();
             var transactions = transactionsRes.Models ?? new List<InventoryTransaction>();
 
@@ -103,8 +104,19 @@ namespace WpfApp1.Services
 
             foreach (var part in parts)
             {
+                // Lọc giao dịch của từng loại phụ tùng
                 var partTransactions = transactions.Where(t => t.PartId == part.Id).ToList();
 
+                // Chuẩn hóa TransactionDate về UTC để so sánh chính xác với startDate/endDate
+                foreach(var t in partTransactions) {
+                    if (t.TransactionDate.Kind == DateTimeKind.Unspecified) {
+                        t.TransactionDate = DateTime.SpecifyKind(t.TransactionDate, DateTimeKind.Utc);
+                    } else {
+                        t.TransactionDate = t.TransactionDate.ToUniversalTime();
+                    }
+                }
+
+                // 1. TỒN ĐẦU: Các giao dịch TRƯỚC ngày startDate
                 decimal tonDauNhap = partTransactions
                     .Where(t => t.TransactionDate < startDate && t.TransactionType == "NHAP")
                     .Sum(t => t.Quantity ?? 0);
@@ -113,15 +125,18 @@ namespace WpfApp1.Services
                     .Sum(t => t.Quantity ?? 0);
                 decimal tonDau = tonDauNhap - tonDauXuat;
 
-                decimal phatSinhNhap = partTransactions
-                    .Where(t => t.TransactionDate >= startDate && t.TransactionDate < endDate && t.TransactionType == "NHAP")
-                    .Sum(t => t.Quantity ?? 0);
-                decimal phatSinhXuat = partTransactions
+                // 2. PHÁT SINH: Là lượng tiêu thụ (XUẤT) TRONG tháng
+                decimal phatSinh = partTransactions
                     .Where(t => t.TransactionDate >= startDate && t.TransactionDate < endDate && t.TransactionType == "XUAT")
                     .Sum(t => t.Quantity ?? 0);
-                decimal phatSinh = phatSinhNhap - phatSinhXuat;
 
-                decimal tonCuoi = tonDau + phatSinh;
+                // 3. NHẬP TRONG THÁNG: (Dùng để tính Tồn Cuối)
+                decimal nhapTrongThang = partTransactions
+                    .Where(t => t.TransactionDate >= startDate && t.TransactionDate < endDate && t.TransactionType == "NHAP")
+                    .Sum(t => t.Quantity ?? 0);
+
+                // 4. TỒN CUỐI: Tồn đầu + Nhập tháng - Phát sinh (Xuất tháng)
+                decimal tonCuoi = tonDau + nhapTrongThang - phatSinh;
 
                 result.Add(new BaoCaoTonKhoRow
                 {
@@ -352,6 +367,33 @@ namespace WpfApp1.Services
             }
 
             await _client.From<RepairOrderDetail>().Insert(danhSachThucTe);
+
+            // --- BỔ SUNG: CẬP NHẬT GIAO DỊCH KHO VÀ TỒN KHO ---
+            foreach (var item in danhSachThucTe)
+            {
+                if (!string.IsNullOrEmpty(item.PartId))
+                {
+                    // 1. Thêm bản ghi xuất kho để làm báo cáo
+                    var transaction = new InventoryTransaction
+                    {
+                        PartId = item.PartId,
+                        TransactionDate = DateTime.SpecifyKind(ngaySuaChua, DateTimeKind.Local).ToUniversalTime(),
+                        TransactionType = "XUAT",
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice
+                    };
+                    await _client.From<InventoryTransaction>().Insert(transaction);
+
+                    // 2. Cập nhật StockQuantity trong bảng Part (Trừ kho)
+                    var partRes = await _client.From<Part>().Filter("id", Operator.Equals, item.PartId).Get();
+                    var part = partRes.Models.FirstOrDefault();
+                    if (part != null)
+                    {
+                        part.StockQuantity = (part.StockQuantity ?? 0) - (item.Quantity ?? 0);
+                        await _client.From<Part>().Update(part);
+                    }
+                }
+            }
 
             return true;
         }
