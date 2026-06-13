@@ -25,8 +25,9 @@ namespace WpfApp1
                 var danhSachHieuXe = await _viewModel.GetCarBrandsAsync();
 
                 cmbHieuXe.ItemsSource = danhSachHieuXe;
-                cmbHieuXe.DisplayMemberPath = "BrandName"; 
-                cmbHieuXe.SelectedValuePath = "Id";        
+                cmbHieuXe.DisplayMemberPath = "TenHieuXe";
+                cmbHieuXe.SelectedValuePath = "TenHieuXe";
+
 
                 if (danhSachHieuXe.Any())
                 {
