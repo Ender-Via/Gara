@@ -9,13 +9,35 @@ using System.Windows.Controls;
 using WpfApp1.Models.DTOs;
 using WpfApp1.ViewModels;
 
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 namespace WpfApp1
 {
-    public partial class BaoCaoWindow : Window
+    public partial class BaoCaoWindow : Window, INotifyPropertyChanged
     {
-        public List<BaoCaoDoanhThuRow> BaoCaoDoanhThu { get; set; }
-        public List<BaoCaoTonKhoRow> BaoCaoTonVatTu { get; set; }
+        private List<BaoCaoDoanhThuRow> _baoCaoDoanhThu;
+        private List<BaoCaoTonKhoRow> _baoCaoTonVatTu;
+
+        public List<BaoCaoDoanhThuRow> BaoCaoDoanhThu
+        {
+            get => _baoCaoDoanhThu;
+            set { _baoCaoDoanhThu = value; OnPropertyChanged(); }
+        }
+
+        public List<BaoCaoTonKhoRow> BaoCaoTonVatTu
+        {
+            get => _baoCaoTonVatTu;
+            set { _baoCaoTonVatTu = value; OnPropertyChanged(); }
+        }
+
         private readonly BaoCaoViewModel _viewModel;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         public BaoCaoWindow()
         {

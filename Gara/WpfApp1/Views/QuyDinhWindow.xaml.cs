@@ -22,7 +22,7 @@ namespace WpfApp1
             { "QD2_MAX_LABOR_TYPES",  200 }
         };
 
-        private SystemRegulation _currentReg;
+        private QuyDinh _currentReg;
         private QuyDinhDashboardStats _dashboardStats;
         private readonly QuyDinhViewModel _viewModel;
 
@@ -50,10 +50,10 @@ namespace WpfApp1
         {
             _currentReg = await _viewModel.GetSystemRegulationsAsync();
 
-            txtQd1HieuXe.Text = (_currentReg?.MaxCarBrands ?? _defaultValues["QD1_MAX_BRANDS"]).ToString();
-            txtQd1SoXe.Text = (_currentReg?.MaxDailyVehicles ?? _defaultValues["QD1_MAX_CARS_PER_DAY"]).ToString();
-            txtQd2VatTu.Text = (_currentReg?.MaxParts ?? _defaultValues["QD2_MAX_PART_TYPES"]).ToString();
-            txtQd2TienCong.Text = (_currentReg?.MaxLabors ?? _defaultValues["QD2_MAX_LABOR_TYPES"]).ToString();
+            txtQd1HieuXe.Text = (_currentReg?.SoLuongHieuXeToiDa ?? _defaultValues["QD1_MAX_BRANDS"]).ToString();
+            txtQd1SoXe.Text = (_currentReg?.SoXeTiepNhanToiDa ?? _defaultValues["QD1_MAX_CARS_PER_DAY"]).ToString();
+            txtQd2VatTu.Text = (_currentReg?.SoLuongVatTuToiDa ?? _defaultValues["QD2_MAX_PART_TYPES"]).ToString();
+            txtQd2TienCong.Text = (_currentReg?.SoLuongTienCongToiDa ?? _defaultValues["QD2_MAX_LABOR_TYPES"]).ToString();
 
             await LoadDashboardStatsAsync();
         }
@@ -142,15 +142,6 @@ namespace WpfApp1
                 foreach (var childOfChild in FindVisualChildren<T>(child))
                     yield return childOfChild;
             }
-        }
-
-        private class HistoryRow
-        {
-            public string ThoiGian { get; set; }
-            public string QuyDinh { get; set; }
-            public string GiaTriCu { get; set; }
-            public string GiaTriMoi { get; set; }
-            public string NguoiThucHien { get; set; }
         }
     }
 }

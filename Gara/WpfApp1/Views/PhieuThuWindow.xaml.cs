@@ -96,8 +96,8 @@ namespace WpfApp1
                 _lastRepairOrderId = summary.LatestRepairOrderId;
                 _loadedLicensePlate = bienSo;
 
-                txtTenKH.Text = summary.Customer?.FullName ?? string.Empty;
-                txtSDT.Text = summary.Customer?.Phone ?? string.Empty;
+                txtTenKH.Text = summary.Customer?.HoTen ?? string.Empty;
+                txtSDT.Text = summary.Customer?.DienThoai ?? string.Empty;
                 txtEmail.Text = summary.Customer?.Email ?? string.Empty;
 
                 UpdateDebtSummary(summary.TotalRepairAmount, summary.TotalPaidAmount, summary.CurrentDebt);

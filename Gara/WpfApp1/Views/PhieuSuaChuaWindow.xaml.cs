@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,12 +15,30 @@ namespace WpfApp1
     /// <summary>
     /// Interaction logic for PhieuSuaChuaWindow.xaml
     /// </summary>
-    public partial class PhieuSuaChuaWindow : Window
+    public partial class PhieuSuaChuaWindow : Window, INotifyPropertyChanged
     {
-        private ObservableCollection<RepairOrderDetail> _danhSachChiTiet = new ObservableCollection<RepairOrderDetail>();
-        private ObservableCollection<Part> _danhSachPhuTung = new ObservableCollection<Part>();
-        private ObservableCollection<Labor> _danhSachTienCong = new ObservableCollection<Labor>();
+        private ObservableCollection<ChiTietPhieuSuaChua> _danhSachChiTiet = new ObservableCollection<ChiTietPhieuSuaChua>();
+        private ObservableCollection<VatTuPhuTung> _danhSachPhuTung = new ObservableCollection<VatTuPhuTung>();
+        private ObservableCollection<TienCong> _danhSachTienCong = new ObservableCollection<TienCong>();
         private readonly PhieuSuaChuaViewModel _viewModel;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public ObservableCollection<VatTuPhuTung> DanhSachPhuTung
+        {
+            get => _danhSachPhuTung;
+            set { _danhSachPhuTung = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<TienCong> DanhSachTienCong
+        {
+            get => _danhSachTienCong;
+            set { _danhSachTienCong = value; OnPropertyChanged(); }
+        }
 
         public PhieuSuaChuaWindow()
         {
@@ -38,13 +58,13 @@ namespace WpfApp1
 
                 // Tải phụ tùng
                 var parts = await _viewModel.GetPartsAsync();
-                _danhSachPhuTung = new ObservableCollection<Part>(parts);
-                colVatTu.ItemsSource = _danhSachPhuTung;
+                DanhSachPhuTung = new ObservableCollection<VatTuPhuTung>(parts);
+                colVatTu.ItemsSource = DanhSachPhuTung;
 
                 // Tải tiền công
                 var labors = await _viewModel.GetLaborsAsync();
-                _danhSachTienCong = new ObservableCollection<Labor>(labors);
-                colTienCong.ItemsSource = _danhSachTienCong;
+                DanhSachTienCong = new ObservableCollection<TienCong>(labors);
+                colTienCong.ItemsSource = DanhSachTienCong;
             }
             catch (Exception ex)
             {
@@ -54,40 +74,35 @@ namespace WpfApp1
 
         private void dgvChiTiet_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            var row = e.Row.Item as RepairOrderDetail;
+            var row = e.Row.Item as ChiTietPhieuSuaChua;
             if (row == null) return;
 
             if(e.Column.Header.ToString() == "Vật tư phụ tùng")
             {
                 var combo = e.EditingElement as ComboBox;
                 var partId = combo?.SelectedValue?.ToString();
-                var selectedPart = _danhSachPhuTung.FirstOrDefault(p => p.Id == partId);
+                var selectedPart = DanhSachPhuTung.FirstOrDefault(p => p.Id == partId);
 
                 if (selectedPart != null)
                 {
-                    row.UnitPrice = selectedPart.UnitPrice;
+                    row.DonGiaPhuTung = selectedPart.DonGia;
                 }
             }
             else if (e.Column.Header.ToString() == "Loại tiền công")
             {
                 var combo = e.EditingElement as ComboBox;
                 var laborId = combo?.SelectedValue?.ToString();
-                var selectedLabor = _danhSachTienCong.FirstOrDefault(l => l.Id == laborId);
+                var selectedLabor = DanhSachTienCong.FirstOrDefault(l => l.Id == laborId);
 
                 if (selectedLabor != null)
                 {
-                    row.LaborFee = selectedLabor.LaborFee;
+                    row.ChiPhiTienCong = selectedLabor.ChiPhi;
                 }
             }
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                decimal sl = row.Quantity ?? 0;
-                decimal gia = row.UnitPrice ?? 0;
-                decimal cong = row.LaborFee ?? 0;
-
-                row.LineTotal = (sl * gia) + cong;
-
+                row.TinhThanhTienChiTiet();
                 TinhTongTienPhieu();
             }), System.Windows.Threading.DispatcherPriority.Background);
         }
