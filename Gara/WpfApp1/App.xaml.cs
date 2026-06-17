@@ -2,6 +2,7 @@
 using System.Data;
 using System.Windows;
 using WpfApp1.Services;
+using WpfApp1.Models.Entities;
 
 namespace WpfApp1
 {
@@ -11,6 +12,7 @@ namespace WpfApp1
     public partial class App : Application
     {
         public static SupabaseService DB { get; private set; }
+        public static NhanVien? CurrentUser { get; set; }
 
         protected override async void OnStartup(StartupEventArgs e)
         {
@@ -24,7 +26,10 @@ namespace WpfApp1
             await DB.InitializeAsync();
 
 
-            MessageBox.Show("Đã kết nối Supabase thành công!");
+            // MessageBox.Show("Đã kết nối Supabase thành công!");
+
+            var loginWindow = new Views.LoginWindow();
+            loginWindow.Show();
         }
     }
 

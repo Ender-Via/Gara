@@ -34,24 +34,58 @@
         </StackPanel>
 
         <StackPanel Grid.Row="1">
-            <RadioButton x:Name="Bm1Button" Content="Tiếp Nhận Xe (BM1)"
+            <RadioButton x:Name="Bm1Button" Content="Tiếp Nhận Xe"
                          Style="{StaticResource NavMenuButton}" Tag="FileDocumentOutline"
                          CommandParameter="BM1" Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm2Button" Content="Phiếu Sửa Chữa (BM2)"
+            <RadioButton x:Name="Bm2Button" Content="Phiếu Sửa Chữa"
                          Style="{StaticResource NavMenuButton}" Tag="WrenchOutline"
                          CommandParameter="BM2" Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm3Button" Content="Tra Cứu Xe (BM3)"
+            <RadioButton x:Name="Bm3Button" Content="Tra Cứu Xe"
                          Style="{StaticResource NavMenuButton}" Tag="Magnify"
                          CommandParameter="BM3" Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm4Button" Content="Phiếu Thu Tiền (BM4)"
+            <RadioButton x:Name="Bm4Button" Content="Phiếu Thu Tiền"
                          Style="{StaticResource NavMenuButton}" Tag="Cash"
                          CommandParameter="BM4" Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Bm5Button" Content="Báo Cáo Tháng (BM5)"
+            <RadioButton x:Name="Bm5Button" Content="Báo Cáo Tháng"
                          Style="{StaticResource NavMenuButton}" Tag="ChartBar"
                          CommandParameter="BM5" Click="NavigationButton_Click"/>
-            <RadioButton x:Name="Qd6Button" Content="Thay Đổi Quy Định (QĐ6)"
+            <RadioButton x:Name="Qd6Button" Content="Thay Đổi Quy Định"
                          Style="{StaticResource NavMenuButton}" Tag="CogOutline"
                          CommandParameter="QD6" Click="NavigationButton_Click"/>
+
+            <!-- User Info & Logout Section -->
+            <Border BorderBrush="#252D3A" BorderThickness="0,1,0,0" Margin="12,20,12,0" Padding="0,20,0,0">
+                <StackPanel>
+                    <Grid Margin="12,0,12,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Width="36" Height="36" Background="#252D3A" CornerRadius="18">
+                            <materialDesign:PackIcon Kind="Account" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="txtUserName" Text="Tên nhân viên" FontWeight="SemiBold" Foreground="White" FontSize="13"/>
+                            <TextBlock x:Name="txtUserRole" Text="Vai trò" Foreground="#757681" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
+                    <Button Content="Đăng xuất"
+                            Style="{StaticResource MaterialDesignFlatButton}"
+                            Foreground="#EF4444"
+                            HorizontalAlignment="Left"
+                            Margin="4,0,0,0"
+                            Click="LogoutButton_Click">
+                        <Button.ContentTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Logout" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </Button.ContentTemplate>
+                    </Button>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </UserControl>
